@@ -2,7 +2,9 @@ from django.contrib.auth import login, authenticate
 from django.contrib.auth.models import User
 from django.http import HttpResponse, HttpRequest
 from django.contrib.auth.forms import UserCreationForm
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
+
+from .models import Post
 
 
 def index(request: HttpRequest) -> HttpResponse:
@@ -39,4 +41,17 @@ def login_(request: HttpRequest) -> HttpResponse:
         return HttpResponse('Logged In!')
     return render(request, 'login.html', context=context)
 
+
+def all_posts(request: HttpRequest) -> HttpResponse:
+    context = {
+        "posts": Post.objects.all()
+    }
+    return render(request, 'posts.html', context=context)
+
+
+def detailed_posts(request: HttpRequest, pk: int) -> HttpResponse:
+    context = {
+        "post": get_object_or_404(Post, pk=pk)
+    }
+    return render(request, 'post.html', context=context)
 

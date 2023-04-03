@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+
+{% block title %}
+    Posts
+{% endblock title %}
+
+{% block main %}
+    {% for post in posts %}
+        <h1>{{ post.title }}</h1>
+        <p>{{ post.body }}</p>
+        <p>Published: {{ post.created_date }}</p>
+    {% endfor %}
+{% endblock main %}
