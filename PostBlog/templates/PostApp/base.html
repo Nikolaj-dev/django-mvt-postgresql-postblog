@@ -11,6 +11,12 @@
     </title>
 </head>
 <body>
+    <nav>
+        <a href="{% url 'create_post' %}">
+            Create a new post
+        </a>
+    </nav>
+    <hr>
     {% block main %}
     {% endblock main %}
 </body>
