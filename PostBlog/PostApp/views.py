@@ -79,13 +79,13 @@ def create_post(request: HttpRequest) -> HttpResponse:
 @login_required
 def update_post(request: HttpRequest, pk: int) -> HttpResponse:
     post = Post.objects.get(pk=pk)
-    context = {
-        "title_value": post.title,
-        "body_value": post.body,
-        "img_value": post.image,
-    }
-    if request.method == "POST":
-        if request.user.username == post.author.username:
+    if request.user.username == post.author.username:
+        context = {
+            "title_value": post.title,
+            "body_value": post.body,
+            "img_value": post.image,
+        }
+        if request.method == "POST":
             if request.FILES.get('image') is None:
                 post.title = request.POST['title']
                 post.body = request.POST['body']
@@ -96,8 +96,8 @@ def update_post(request: HttpRequest, pk: int) -> HttpResponse:
                 post.image = request.FILES.get('image')
                 post.save()
             return redirect('posts')
-        else:
-            return HttpResponse("Method not allowed!")
+    else:
+        return HttpResponse("Method not allowed!")
     return render(request, 'update_post.html', context=context)
 
 
