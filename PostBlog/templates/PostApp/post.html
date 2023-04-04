@@ -8,5 +8,9 @@
 {% block main %}
         <h1>{{ post.title }}</h1>
         <p>{{ post.body }}</p>
+        <p>Author: {{ post.author }}</p>
         <p>Published: {{ post.created_date }}</p>
+    <a href="{% url 'delete_post' post.pk %}">
+        Delete post
+    </a>
 {% endblock main %}

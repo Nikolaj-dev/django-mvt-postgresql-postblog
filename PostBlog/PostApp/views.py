@@ -20,7 +20,7 @@ def sign_up(request: HttpRequest) -> HttpResponse:
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return HttpResponse('Registered successfully!')
+            return redirect('posts')
     return render(request, 'sign_up.html', context=context)
 
 
@@ -38,7 +38,7 @@ def login_(request: HttpRequest) -> HttpResponse:
         )
         if user is not None:
             login(request, user)
-        return HttpResponse('Logged In!')
+        return redirect('posts')
     return render(request, 'login.html', context=context)
 
 
@@ -66,6 +66,7 @@ def create_post(request: HttpRequest) -> HttpResponse:
         Post.objects.create(
             title=title,
             body=body,
+            author=request.user,
         )
         return redirect('posts')
     return render(request, 'create_post.html', context=context)
