@@ -12,7 +12,7 @@
         <label for="body">Text: </label>
         <textarea name="body" id="body" cols="30" rows="10">{{ body_value }}</textarea><br>
         <label for="img">Upload post image</label>
-        <input type="file" id="img" name="image"><br>
+        <input type="file" id="img" name="image" value="{{ img_value.url }}"><br>
         <a href="{{ img_value.url }}">Current image: {{ img_value }}</a><br>
         <input type="submit" value="Post">
     </form>

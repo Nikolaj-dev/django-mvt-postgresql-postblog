@@ -86,10 +86,15 @@ def update_post(request: HttpRequest, pk: int) -> HttpResponse:
     }
     if request.method == "POST":
         if request.user.username == post.author.username:
-            post.title = request.POST.get('title')
-            post.body = request.POST.get('body')
-            post.image = request.FILES['image']
-            post.save()
+            if request.FILES.get('image') is None:
+                post.title = request.POST['title']
+                post.body = request.POST['body']
+                post.save()
+            else:
+                post.title = request.POST['title']
+                post.body = request.POST['body']
+                post.image = request.FILES.get('image')
+                post.save()
             return redirect('posts')
         else:
             return HttpResponse("Method not allowed!")
