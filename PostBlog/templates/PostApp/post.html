@@ -7,10 +7,19 @@
 
 {% block main %}
         <h1>{{ post.title }}</h1>
+    <img src="{{ post.image.url }}" alt="">
         <p>{{ post.body }}</p>
         <p>Author: {{ post.author }}</p>
         <p>Published: {{ post.created_date }}</p>
-    <a href="{% url 'delete_post' post.pk %}">
+    {% if request.user.username == post.author.username %}
+    <span>
+        <a href="{% url 'delete_post' post.pk %}">
         Delete post
     </a>
+    <a href="{% url 'update_post' post.pk %}">
+        Update post
+    </a>
+    </span>
+    {% endif %}
+
 {% endblock main %}

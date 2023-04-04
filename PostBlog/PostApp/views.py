@@ -1,4 +1,5 @@
 from django.contrib.auth import login, authenticate
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import HttpResponse, HttpRequest
 from django.contrib.auth.forms import UserCreationForm
@@ -56,6 +57,7 @@ def detailed_posts(request: HttpRequest, pk: int) -> HttpResponse:
     return render(request, 'post.html', context=context)
 
 
+@login_required
 def create_post(request: HttpRequest) -> HttpResponse:
     context = {
 
@@ -74,23 +76,27 @@ def create_post(request: HttpRequest) -> HttpResponse:
     return render(request, 'create_post.html', context=context)
 
 
+@login_required
 def update_post(request: HttpRequest, pk: int) -> HttpResponse:
-    post = Post.objects.filter(pk=pk)
+    post = Post.objects.get(pk=pk)
     context = {
-        "title_value": Post.objects.get(pk=pk).title,
-        "body_value": Post.objects.get(pk=pk).body
+        "title_value": post.title,
+        "body_value": post.body,
+        "img_value": post.image,
     }
     if request.method == "POST":
-        title = request.POST['title']
-        body = request.POST['body']
-        post.update(
-            title=title,
-            body=body,
-        )
-        return redirect('posts')
+        if request.user.username == post.author.username:
+            post.title = request.POST.get('title')
+            post.body = request.POST.get('body')
+            post.image = request.FILES['image']
+            post.save()
+            return redirect('posts')
+        else:
+            return HttpResponse("Method not allowed!")
     return render(request, 'update_post.html', context=context)
 
 
+@login_required
 def delete_post(request: HttpRequest, pk: int) -> HttpResponse:
     post = Post.objects.filter(pk=pk)
     post.delete()
