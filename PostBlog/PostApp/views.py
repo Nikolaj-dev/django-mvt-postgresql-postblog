@@ -63,10 +63,12 @@ def create_post(request: HttpRequest) -> HttpResponse:
     if request.method == "POST":
         title = request.POST['title']
         body = request.POST['body']
+        image = request.FILES['image']
         Post.objects.create(
             title=title,
             body=body,
             author=request.user,
+            image=image,
         )
         return redirect('posts')
     return render(request, 'create_post.html', context=context)
