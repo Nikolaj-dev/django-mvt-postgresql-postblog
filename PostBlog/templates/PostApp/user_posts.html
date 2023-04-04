@@ -3,7 +3,6 @@
 
 {% block title %}
     Posts
-    {{ request.user }}
 {% endblock title %}
 
 {% block main %}
@@ -15,11 +14,7 @@
         </h1>
         <img src="{{ post.image.url }}" alt="">
         <p>{{ post.body }}</p>
-        <p>
-            <a href="{% url 'user_posts' post.author %}">
-                Author: {{ post.author }}
-            </a>
-        </p>
+        <p>Author: {{ post.author }}</p>
         <p>Published: {{ post.created_date }}</p>
     {% endfor %}
 {% endblock main %}

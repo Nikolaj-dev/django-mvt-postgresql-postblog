@@ -13,4 +13,5 @@ urlpatterns = [
     path('posts/create/', views.create_post, name='create_post'),
     path('posts/update/<int:pk>/', views.update_post, name='update_post'),
     path('posts/delete/<int:pk>/', views.delete_post, name='delete_post'),
+    path('posts/user/<str:author>/', views.user_posts, name='user_posts'),
 ]

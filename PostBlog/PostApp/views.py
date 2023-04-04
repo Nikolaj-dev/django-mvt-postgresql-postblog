@@ -97,3 +97,10 @@ def delete_post(request: HttpRequest, pk: int) -> HttpResponse:
     return redirect("posts")
 
 
+def user_posts(request: HttpRequest, author: str) -> HttpResponse:
+    posts = Post.objects.filter(author__username=author)
+    context = {
+        "posts": posts,
+    }
+    return render(request, 'user_posts.html', context=context)
+
