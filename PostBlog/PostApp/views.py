@@ -99,8 +99,11 @@ def update_post(request: HttpRequest, pk: int) -> HttpResponse:
 @login_required
 def delete_post(request: HttpRequest, pk: int) -> HttpResponse:
     post = Post.objects.filter(pk=pk)
-    post.delete()
-    return redirect("posts")
+    if request.user.username == post.author.username:
+        post.delete()
+        return redirect("posts")
+    else:
+        return HttpResponse("Method not allowed!")
 
 
 def user_posts(request: HttpRequest, author: str) -> HttpResponse:
