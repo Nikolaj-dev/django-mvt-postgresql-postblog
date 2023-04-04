@@ -98,8 +98,8 @@ def update_post(request: HttpRequest, pk: int) -> HttpResponse:
 
 @login_required
 def delete_post(request: HttpRequest, pk: int) -> HttpResponse:
-    post = Post.objects.filter(pk=pk)
-    if request.user.username == post.author.username:
+    post = Post.objects.get(pk=pk)
+    if request.user.pk == post.author_id:
         post.delete()
         return redirect("posts")
     else:
