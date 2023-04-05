@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="601a1781-22f4-43e0-9e03-20db6d9bc048" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/PostBlog/PostApp/templatetags/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/PostBlog/PostApp/templatetags/extra_tags.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/django-mvt-sqlite-postblog.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/django-mvt-sqlite-postblog.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PostBlog/PostApp/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/PostBlog/PostApp/admin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PostBlog/PostApp/migrations/0001_initial.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PostBlog/PostApp/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/PostBlog/PostApp/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PostBlog/PostApp/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/PostBlog/PostApp/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PostBlog/PostApp/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/PostBlog/PostApp/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PostBlog/PostBlog/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/PostBlog/PostBlog/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PostBlog/templates/PostApp/post.html" beforeDir="false" afterPath="$PROJECT_DIR$/PostBlog/templates/PostApp/post.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PostBlog/templates/PostApp/posts.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PostBlog/templates/PostApp/user_posts.html" beforeDir="false" afterPath="$PROJECT_DIR$/PostBlog/templates/PostApp/user_posts.html" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="2O16xE8x7vzuf2Uy43pDtiwMc4b" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "last_opened_file_path": "D:/django-mvt-sqlite-postblog/PostBlog/PostBlog/settings.py",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "settings.editor.selected.configurable": "com.jetbrains.django.DjangoModulesConfigurable",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="601a1781-22f4-43e0-9e03-20db6d9bc048" name="Changes" comment="" />
+      <created>1680715988779</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1680715988779</updated>
+      <workItem from="1680715990239" duration="4519000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

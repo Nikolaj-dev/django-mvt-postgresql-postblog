@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+
+{% block main %}
+    {% for like in likes %}
+        <ul>
+            {% if like.is_liked %}
+                <li>{{ like.who_liked }}</li>
+            {% endif %}
+        </ul>
+    {% endfor %}
+{% endblock %}

@@ -5,7 +5,7 @@ from django.http import HttpResponse, HttpRequest
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, get_object_or_404, redirect
 
-from .models import Post
+from .models import Post, PostLike
 
 
 def index(request: HttpRequest) -> HttpResponse:
@@ -43,9 +43,10 @@ def login_(request: HttpRequest) -> HttpResponse:
     return render(request, 'login.html', context=context)
 
 
-def all_posts(request: HttpRequest) -> HttpResponse:
+def all_posts(request):
+    posts = Post.objects.all()
     context = {
-        "posts": Post.objects.all()
+        "posts": posts,
     }
     return render(request, 'posts.html', context=context)
 
@@ -117,4 +118,34 @@ def user_posts(request: HttpRequest, author: str) -> HttpResponse:
         "posts": posts,
     }
     return render(request, 'user_posts.html', context=context)
+
+
+def all_likes(request: HttpRequest, pk: int) -> HttpResponse:
+    post = Post.objects.get(pk=pk)
+    likes = PostLike.objects.filter(for_post_id=post.id)
+    context = {
+        "likes": likes,
+    }
+    return render(request, 'likes_list.html', context=context)
+
+
+def create_like(request: HttpRequest, pk: int) -> HttpResponse:
+    post = Post.objects.get(pk=pk)
+    user = request.user
+    try:
+        like = PostLike.objects.get(for_post=post, who_liked=user)
+        if like.is_liked:
+            like.is_liked = False
+            like.save()
+        else:
+            like.is_liked = True
+            like.save()
+    except Exception as error:
+        PostLike.objects.create(
+            who_liked=user,
+            for_post=post,
+        )
+    return redirect(request.META.get('HTTP_REFERER', None))
+
+
 

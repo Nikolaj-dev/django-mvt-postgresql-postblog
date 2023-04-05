@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
-
+{% load extra_tags %}
 
 {% block title %}
-    Posts
-    {{ request.user }}
-{% endblock title %}
+    Posts - {{ request.user }}
+{% endblock %}
+
 
 {% block main %}
     {% for post in posts %}
@@ -13,7 +13,7 @@
                 {{ post.title }}
             </a>
         </h1>
-        <img src="{{ post.image.url }}" alt="">
+        <img style="display: block; max-block-size: 300px;" src="{{ post.image.url }}" alt="">
         <p>{{ post.body }}</p>
         <p>
             <a href="{% url 'user_posts' post.author %}">
@@ -21,5 +21,18 @@
             </a>
         </p>
         <p>Published: {{ post.created_date }}</p>
+        <p>
+            <a href="{% url 'likes_list' post.pk %}">Liked by...</a>
+        </p>
+        {% posts_ post.pk as like %}
+            {% if like %}
+                {% if like.is_liked %}
+                    <button style="background-color: red" onclick="window.location.href = '{% url 'create_like' post.pk %}'">Like</button>
+                {% else %}
+                    <button onclick="window.location.href = '{% url 'create_like' post.pk %}'">Like</button>
+                {% endif %}
+            {% else %}
+                <button onclick="window.location.href = '{% url 'create_like' post.pk %}'">Like</button>
+            {% endif %}
     {% endfor %}
-{% endblock main %}
+{% endblock%}

@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load extra_tags %}
 
 {% block title %}
     Posts
@@ -12,9 +12,22 @@
                 {{ post.title }}
             </a>
         </h1>
-        <img src="{{ post.image.url }}" alt="">
+        <img style="display: block; max-block-size: 300px;" src="{{ post.image.url }}" alt="">
         <p>{{ post.body }}</p>
         <p>Author: {{ post.author }}</p>
         <p>Published: {{ post.created_date }}</p>
+        <p>
+            <a href="{% url 'likes_list' post.pk %}">Liked by...</a>
+        </p>
+        {% posts_ post.pk as like %}
+            {% if like %}
+                {% if like.is_liked %}
+                    <button style="background-color: red" onclick="window.location.href = '{% url 'create_like' post.pk %}'">Like</button>
+                {% else %}
+                    <button onclick="window.location.href = '{% url 'create_like' post.pk %}'">Like</button>
+                {% endif %}
+            {% else %}
+                <button onclick="window.location.href = '{% url 'create_like' post.pk %}'">Like</button>
+            {% endif %}
     {% endfor %}
 {% endblock main %}
