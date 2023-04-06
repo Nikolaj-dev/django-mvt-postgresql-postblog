@@ -11,7 +11,9 @@
         <h1>{{ post.title }}</h1>
     <img style="display:block; max-block-size: 300px;" src="{{ post.image.url }}" alt="">
         <p>{{ post.body }}</p>
-        <p>Author: {{ post.author }}</p>
+        <a href="{% url 'user_posts' post.author %}">
+                Author: {{ post.author }}
+            </a>
         <p>Published: {{ post.created_date }}</p>
     {% if request.user.username == post.author.username %}
     <span>
@@ -24,7 +26,7 @@
     </span>
     {% endif %}
     <p>
-            <a href="{% url 'likes_list' post.pk %}">Liked by...</a>
+           <a href="{% url 'likes_list' post.pk %}">{% count_likes post.pk %} likes</a>
         </p>
         {% posts_ post.pk as like %}
             {% if like %}
@@ -36,4 +38,20 @@
             {% else %}
                 <button onclick="window.location.href = '{% url 'create_like' post.pk %}'">Like</button>
             {% endif %}
+    <hr>
+    <form method="POST">
+        {% csrf_token %}
+        <label for="comment">Your comment:</label><br>
+        <textarea name="comment" id="comment" cols="150" rows="10"></textarea><br>
+        <button type="submit">Send</button>
+    </form>
+    <hr>
+    {% all_comments post.pk as comments %}
+    {% for comment in comments %}
+        <p>
+            {{ comment.who_commented }}<br>
+            {{ comment.comment }}<br>
+            {{ comment.created_time }}<br>
+        </p>
+    {% endfor %}
 {% endblock main %}

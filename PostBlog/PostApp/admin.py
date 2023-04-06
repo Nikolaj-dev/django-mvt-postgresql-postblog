@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Post, PostLike
+from .models import Post, PostLike, PostComment
 
 
 class PostAdmin(admin.ModelAdmin):
@@ -35,6 +35,25 @@ class PostLikeAdmin(admin.ModelAdmin):
     )
 
 
+class PostCommentAdmin(admin.ModelAdmin):
+    list_display = (
+        'who_commented',
+        'for_post',
+        'comment',
+        'created_time',
+    )
+    list_filter = (
+        'who_commented',
+        'for_post',
+        'comment',
+        'created_time',
+    )
+    search_fields = (
+        'who_commented',
+        'for_post',
+    )
+
+
 admin.site.register(Post, PostAdmin)
 admin.site.register(PostLike, PostLikeAdmin)
-
+admin.site.register(PostComment, PostCommentAdmin)

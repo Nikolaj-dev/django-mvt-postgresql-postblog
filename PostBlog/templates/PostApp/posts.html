@@ -22,7 +22,9 @@
         </p>
         <p>Published: {{ post.created_date }}</p>
         <p>
-            <a href="{% url 'likes_list' post.pk %}">Liked by...</a>
+            <a href="{% url 'likes_list' post.pk %}">{% count_likes post.pk %} likes</a>
+            |
+            <a href="{% url 'post' post.pk %}">{% count_comments post.pk %} comments</a>
         </p>
         {% posts_ post.pk as like %}
             {% if like %}

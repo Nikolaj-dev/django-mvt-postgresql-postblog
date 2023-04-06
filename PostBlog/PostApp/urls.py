@@ -16,5 +16,4 @@ urlpatterns = [
     path('posts/user/<str:author>/', views.user_posts, name='user_posts'),
     path('posts/likes/<int:pk>', views.all_likes, name='likes_list'),
     path('posts/create_like/<int:pk>', views.create_like, name='create_like'),
-
 ]

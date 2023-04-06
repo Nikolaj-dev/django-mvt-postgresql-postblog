@@ -5,7 +5,7 @@ from django.http import HttpResponse, HttpRequest
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, get_object_or_404, redirect
 
-from .models import Post, PostLike
+from .models import Post, PostLike, PostComment
 
 
 def index(request: HttpRequest) -> HttpResponse:
@@ -55,6 +55,15 @@ def detailed_posts(request: HttpRequest, pk: int) -> HttpResponse:
     context = {
         "post": get_object_or_404(Post, pk=pk)
     }
+    if request.method == "POST":
+        try:
+            PostComment.objects.create(
+                who_commented_id=request.user.id,
+                for_post_id=pk,
+                comment=request.POST['comment']
+            )
+        except Exception as error:
+            return HttpResponse(str(error))
     return render(request, 'post.html', context=context)
 
 
@@ -146,6 +155,8 @@ def create_like(request: HttpRequest, pk: int) -> HttpResponse:
             for_post=post,
         )
     return redirect(request.META.get('HTTP_REFERER', None))
+
+
 
 
 
