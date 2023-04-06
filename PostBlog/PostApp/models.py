@@ -22,5 +22,5 @@ class PostLike(models.Model):
 class PostComment(models.Model):
     who_commented = models.ForeignKey(User, on_delete=models.CASCADE)
     for_post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    comment = models.TextField(max_length=516)
+    comment = models.TextField()
     created_time = models.DateTimeField(auto_now_add=True)

@@ -51,7 +51,7 @@ def all_posts(request):
     return render(request, 'posts.html', context=context)
 
 
-def detailed_posts(request: HttpRequest, pk: int) -> HttpResponse:
+def detailed_post(request: HttpRequest, pk: int) -> HttpResponse:
     context = {
         "post": get_object_or_404(Post, pk=pk)
     }
@@ -105,7 +105,7 @@ def update_post(request: HttpRequest, pk: int) -> HttpResponse:
                 post.body = request.POST['body']
                 post.image = request.FILES.get('image')
                 post.save()
-            return redirect('posts')
+            return redirect('post', pk=pk)
     else:
         return HttpResponse("Method not allowed!")
     return render(request, 'update_post.html', context=context)
@@ -157,6 +157,23 @@ def create_like(request: HttpRequest, pk: int) -> HttpResponse:
     return redirect(request.META.get('HTTP_REFERER', None))
 
 
+@login_required
+def delete_comment(request: HttpRequest, pk: int) -> HttpResponse:
+    comment = PostComment.objects.get(pk=pk)
+    comment.delete()
+    return redirect(request.META.get('HTTP_REFERER', None))
 
 
+@login_required
+def update_comment(request: HttpRequest, pk: int) -> HttpResponse:
+    get_comment = PostComment.objects.get(pk=pk)
+    if request.method == "POST":
+        get_comment.comment = request.POST.get('comment')
+        get_comment.save()
+        return redirect('post', pk=get_comment.for_post_id)
+
+    context = {
+        "comment": get_comment,
+    }
+    return render(request, 'comment_update.html', context=context)
 

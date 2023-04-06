@@ -53,5 +53,9 @@
             {{ comment.comment }}<br>
             {{ comment.created_time }}<br>
         </p>
+        {% if request.user == comment.who_commented %}
+            <button name="delete" onclick="window.location.href = '{% url 'delete_comment' comment.pk %}'">Delete</button>
+            <button name="update" onclick="window.location.href = '{% url 'update_comment' comment.pk %}'">Update</button>
+        {% endif %}
     {% endfor %}
 {% endblock main %}

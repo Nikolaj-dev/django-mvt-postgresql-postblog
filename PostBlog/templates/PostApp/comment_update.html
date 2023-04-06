@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+
+{% block title %}
+    Create a new post!
+{% endblock title %}
+
+{% block main %}
+    <form method="POST">
+        {% csrf_token %}
+        <label for="update">Change comment:</label><br>
+        <textarea name="comment" id="update" cols="150" rows="10">
+            {{ comment.comment }}
+        </textarea><br>
+        <input type="submit" value="Update" >
+    </form>
+{% endblock main %}
