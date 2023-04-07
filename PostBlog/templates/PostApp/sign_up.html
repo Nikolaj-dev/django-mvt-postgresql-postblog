@@ -6,9 +6,23 @@
 {% endblock title %}
 
 {% block main %}
-    <form method="POST">
+    <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ form.as_p }}
+        <label for="username">Login:</label><br>
+        <input id="username" type="text" name="username"><br>
+
+        <label for="password1">Password:</label><br>
+        <input id="password1" type="password" name="password1"><br>
+
+        <label for="password2">Repeat the password:</label><br>
+        <input id="password2" type="text" name="password2"><br>
+
+        <label for="image">Profile image:</label><br>
+        <input id="image" type="file" name="image"><br>
+
+        <label for="nickname">Nickname:</label><br>
+        <input id="nickname" type="text" name="nickname"><br>
+
         <input type="submit" value="Sign Up">
     </form>
 {% endblock main %}

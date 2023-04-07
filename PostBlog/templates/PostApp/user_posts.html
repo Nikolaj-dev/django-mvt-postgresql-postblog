@@ -6,6 +6,16 @@
 {% endblock title %}
 
 {% block main %}
+    <div style="display: flex;">
+        <img style="max-height: 100px; max-width: 100px; border: none; border-radius: 50px; min-width: 100px; min-height: 100px" src="{{ author.profile_img.url }}" alt="">
+        <div>
+             <h1>{{ author.nickname }}</h1>
+            <h3>Joined: {{ author.user.date_joined }}</h3>
+        </div>
+    </div>
+
+            <h1 style="text-align: center">{{ author.nickname }}'s posts</h1>
+
     {% for post in posts %}
         <h1>
             <a href="{% url 'post' post.pk %}">

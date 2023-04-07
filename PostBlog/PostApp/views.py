@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -5,24 +6,11 @@ from django.http import HttpResponse, HttpRequest
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, get_object_or_404, redirect
 
-from .models import Post, PostLike, PostComment
+from .models import Post, PostLike, PostComment, Profile
 
 
 def index(request: HttpRequest) -> HttpResponse:
     return HttpResponse("Index Page!")
-
-
-def sign_up(request: HttpRequest) -> HttpResponse:
-    context = {
-        "form": UserCreationForm,
-    }
-    if request.method == "POST":
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return redirect('posts')
-    return render(request, 'sign_up.html', context=context)
 
 
 def login_(request: HttpRequest) -> HttpResponse:
@@ -122,9 +110,12 @@ def delete_post(request: HttpRequest, pk: int) -> HttpResponse:
 
 
 def user_posts(request: HttpRequest, author: str) -> HttpResponse:
-    posts = Post.objects.filter(author__username=author)
+    posts = Post.objects.filter(author__profile__nickname=author)
     context = {
         "posts": posts,
+        "author": Profile.objects.get(
+            nickname=author,
+        )
     }
     return render(request, 'user_posts.html', context=context)
 
@@ -176,4 +167,52 @@ def update_comment(request: HttpRequest, pk: int) -> HttpResponse:
         "comment": get_comment,
     }
     return render(request, 'comment_update.html', context=context)
+
+
+def detailed_profile(request: HttpRequest) -> HttpResponse:
+    try:
+        profile = Profile.objects.get(user_id=request.user.id)
+    except Exception as error:
+        return redirect(request.META.get('HTTP_REFERER', None))
+    context = {
+        "profile": profile,
+        "posts": Post.objects.filter(
+            author__profile=profile,
+        )
+    }
+    return render(request, 'profile.html', context=context)
+
+
+def create_profile(request: HttpRequest) -> HttpResponse:
+    if request.method == "POST":
+        username = request.POST['username']
+        password1 = request.POST['password1']
+        password2 = request.POST['password2']
+        profile_image = request.FILES['image']
+        nickname = request.POST['nickname']
+        if password1 == password2:
+            User.objects.create_user(
+                username=username,
+                password=password1,
+            )
+            user_instance = User.objects.get(
+                username=username,
+            )
+            Profile.objects.create(
+                user=user_instance,
+                profile_img=profile_image,
+                nickname=nickname,
+            )
+            user = authenticate(request, username=username, password=password1)
+            if user is not None:
+                login(request, user)
+                return redirect('posts')
+            else:
+                return redirect('sign_up')
+
+        else:
+            messages.add_message(request, messages.ERROR, 'Password are not equal!')
+            return redirect('sign_up')
+    return render(request, 'sign_up.html')
+
 
