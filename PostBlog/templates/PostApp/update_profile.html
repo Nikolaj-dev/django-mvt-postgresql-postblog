@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+
+{% block title %}
+    Create a new post!
+{% endblock title %}
+
+{% block main %}
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label for="nickname">Nickname: </label>
+        <input type="text" name="nickname" id="nickname">
+         <input type="submit" value="update" name="for_nickname">
+        <br>
+        <label for="image">New image: </label>
+        <input type="file" name="image" id="image">
+         <input type="submit" value="update" name="for_image">
+        <br>
+    </form>
+{% endblock main %}

@@ -211,8 +211,22 @@ def create_profile(request: HttpRequest) -> HttpResponse:
                 return redirect('sign_up')
 
         else:
-            messages.add_message(request, messages.ERROR, 'Password are not equal!')
+            messages.add_message(request, messages.ERROR, 'Passwords are not equal!')
             return redirect('sign_up')
     return render(request, 'sign_up.html')
 
 
+@login_required
+def update_profile(request: HttpRequest) -> HttpResponse:
+    get_profile = Profile.objects.get(pk=request.user.pk)
+    if request.method == "POST":
+
+        if 'for_nickname' in request.POST:
+            get_profile.nickname = request.POST['nickname']
+            get_profile.save()
+        if 'for_image' in request.POST:
+            get_profile.profile_img = request.FILES['image']
+            get_profile.save()
+        return redirect('profile')
+
+    return render(request, 'update_profile.html')

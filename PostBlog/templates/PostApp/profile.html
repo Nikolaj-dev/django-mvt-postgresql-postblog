@@ -10,6 +10,7 @@
             <h3>Joined: {{ profile.user.date_joined }}</h3>
         </div>
     </div>
+    <button onclick="window.location.href = '{% url 'update_profile' %}'">Change profile info</button>
 <h1 style="text-align: center">My posts</h1>
     {% for post in posts %}
 
