@@ -5,7 +5,12 @@
     {% for like in likes %}
         <ul>
             {% if like.is_liked %}
-                <li>{{ like.who_liked.profile.nickname }}</li>
+                <div style="display: flex;">
+                    <img style="max-height: 50px; max-width: 50px; border: none; border-radius: 25px; min-width: 50px; min-height: 50px" src="{{ like.who_liked.profile.profile_img.url }}" alt="">
+                    <a href="{% url 'user_posts' like.who_liked.profile.nickname %}">
+                        {{ like.who_liked.profile.nickname }}
+                    </a>
+                </div>
             {% endif %}
         </ul>
     {% endfor %}
