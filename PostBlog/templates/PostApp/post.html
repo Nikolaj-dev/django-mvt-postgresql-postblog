@@ -11,9 +11,15 @@
         <h1>{{ post.title }}</h1>
     <img style="display:block; max-block-size: 300px;" src="{{ post.image.url }}" alt="">
         <p>{{ post.body }}</p>
-        <a href="{% url 'user_posts' post.author.profile.nickname %}">
+        {% if request.user == post.author %}
+                <a href="{% url 'profile' %}">
+                    Author: {{ post.author.profile.nickname }}
+                </a>
+            {% else %}
+            <a href="{% url 'user_posts' post.author.profile.nickname %}">
                 Author: {{ post.author.profile.nickname }}
             </a>
+            {% endif %}
         <p>Published: {{ post.created_date }}</p>
     {% if request.user.username == post.author.username %}
     <span>
