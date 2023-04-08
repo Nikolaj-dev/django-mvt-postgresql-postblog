@@ -1,9 +1,9 @@
 from django.contrib import messages
-from django.contrib.auth import login, authenticate
+from django.contrib.auth import login, authenticate, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import HttpResponse, HttpRequest
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import PasswordChangeForm
 from django.shortcuts import render, get_object_or_404, redirect
 
 from .models import Post, PostLike, PostComment, Profile
@@ -230,3 +230,18 @@ def update_profile(request: HttpRequest) -> HttpResponse:
         return redirect('profile')
 
     return render(request, 'update_profile.html')
+
+
+def change_password(request: HttpRequest) -> HttpResponse:
+    if request.method == "POST":
+        user = request.user
+        form = PasswordChangeForm(user, request.POST)
+        if form.is_valid():
+            update_session_auth_hash(request, form.save())
+            messages.add_message(request, messages.SUCCESS, 'Password has been changed.')
+            return redirect('profile')
+    context = {
+        "form": PasswordChangeForm(request.user),
+    }
+    return render(request, 'change_user_password.html', context=context)
+

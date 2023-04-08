@@ -20,4 +20,5 @@ urlpatterns = [
     path('posts/comment/update/<int:pk>/', views.update_comment, name='update_comment'),
     path('profile/', views.detailed_profile, name='profile'),
     path('profile/update/', views.update_profile, name='update_profile'),
+    path('profile/reset-password/', views.change_password, name='change_password'),
 ]
