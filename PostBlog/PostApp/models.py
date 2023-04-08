@@ -56,6 +56,7 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     profile_img = models.ImageField(upload_to='profiles_images/')
     nickname = models.CharField(max_length=64)
+    about = models.TextField(max_length=5000, null=True, blank=True)
 
 
 @receiver(pre_delete, sender=Profile)
@@ -67,7 +68,6 @@ def profile_image_delete(sender, instance, **kwargs):
 def delete_old_profile_image(sender, instance, **kwargs):
     if instance._state.adding and instance.pk:
         return False
-
     try:
         old_file = sender.objects.get(pk=instance.pk).profile_img
     except sender.DoesNotExist:

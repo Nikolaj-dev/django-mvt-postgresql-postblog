@@ -14,6 +14,12 @@
         <button onclick="window.location.href = '{% url 'update_profile' %}'">Change profile info</button>
         <button onclick="window.location.href = '{% url 'change_password' %}'">Password reset</button>
     </span>
+    {% if profile.about %}
+    <div>
+        <h1>About me:</h1>
+        <p>{{ profile.about }}</p>
+    </div>
+    {% endif %}
 <h1 style="text-align: center">My posts</h1>
     {% for post in posts %}
 

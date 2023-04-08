@@ -9,12 +9,19 @@
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         <label for="nickname">Nickname: </label>
-        <input type="text" name="nickname" id="nickname">
+        <input type="text" name="nickname" id="nickname" value="{{ request.user.profile.nickname }}">
          <input type="submit" value="update" name="for_nickname">
         <br>
-        <label for="image">New image: </label>
+        <label for="image">New image: </label><br>
+        <a href="{{ request.user.profile.profile_img.url }}">Current profile image</a><br>
         <input type="file" name="image" id="image">
          <input type="submit" value="update" name="for_image">
+        <br>
+        <label for="about">You can write about yourself here: </label><br>
+        <textarea name="about" id="about" cols="150" rows="10">
+            {{ request.user.profile.about }}
+        </textarea><br>
+         <input type="submit" value="update" name="for_about">
         <br>
     </form>
 {% endblock main %}

@@ -224,9 +224,14 @@ def update_profile(request: HttpRequest) -> HttpResponse:
         if 'for_nickname' in request.POST:
             get_profile.nickname = request.POST['nickname']
             get_profile.save()
+
         if 'for_image' in request.POST:
             get_profile.profile_img = request.FILES['image']
             get_profile.save()
+        if 'for_about' in request.POST:
+            get_profile.about = request.POST['about']
+            get_profile.save()
+
         return redirect('profile')
 
     return render(request, 'update_profile.html')
