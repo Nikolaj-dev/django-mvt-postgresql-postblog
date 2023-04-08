@@ -23,7 +23,7 @@ def post_image_delete(sender, instance, **kwargs):
 
 
 @receiver(pre_save, sender=Post)
-def delete_old_file(sender, instance, **kwargs):
+def delete_old_post_image(sender, instance, **kwargs):
     if instance._state.adding and instance.pk:
         return False
 
@@ -56,3 +56,25 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     profile_img = models.ImageField(upload_to='profiles_images/')
     nickname = models.CharField(max_length=64)
+
+
+@receiver(pre_delete, sender=Profile)
+def profile_image_delete(sender, instance, **kwargs):
+    instance.profile_img.delete(False)
+
+
+@receiver(pre_save, sender=Profile)
+def delete_old_profile_image(sender, instance, **kwargs):
+    if instance._state.adding and instance.pk:
+        return False
+
+    try:
+        old_file = sender.objects.get(pk=instance.pk).profile_img
+    except sender.DoesNotExist:
+        return False
+
+    # comparing the new file with the old one
+    file = instance.profile_img
+    if not old_file == file:
+        if os.path.isfile(old_file.path):
+            os.remove(old_file.path)
