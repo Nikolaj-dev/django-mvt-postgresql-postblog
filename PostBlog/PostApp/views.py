@@ -218,7 +218,7 @@ def create_profile(request: HttpRequest) -> HttpResponse:
 
 @login_required
 def update_profile(request: HttpRequest) -> HttpResponse:
-    get_profile = Profile.objects.get(pk=request.user.pk)
+    get_profile = Profile.objects.get(user=request.user)
     if request.method == "POST":
 
         if 'for_nickname' in request.POST:

@@ -55,7 +55,15 @@
     {% all_comments post.pk as comments %}
     {% for comment in comments %}
         <p>
-            {{ comment.who_commented }}<br>
+            {% if request.user == comment.who_commented %}
+                <a href="{% url 'profile' %}">
+                    {{ comment.who_commented.profile.nickname }}
+                </a><br>
+            {% else %}
+                <a href="{% url 'user_posts' comment.who_commented.profile.nickname %}">
+                {{ comment.who_commented.profile.nickname }}
+            </a><br>
+            {% endif %}
             {{ comment.comment }}<br>
             {{ comment.created_time }}<br>
         </p>

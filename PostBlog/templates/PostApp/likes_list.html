@@ -5,7 +5,7 @@
     {% for like in likes %}
         <ul>
             {% if like.is_liked %}
-                <li>{{ like.who_liked }}</li>
+                <li>{{ like.who_liked.profile.nickname }}</li>
             {% endif %}
         </ul>
     {% endfor %}
