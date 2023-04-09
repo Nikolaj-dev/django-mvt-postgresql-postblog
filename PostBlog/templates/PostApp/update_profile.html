@@ -19,7 +19,9 @@
         <br>
         <label for="about">You can write about yourself here: </label><br>
         <textarea name="about" id="about" cols="150" rows="10">
-            {{ request.user.profile.about }}
+            {% if request.user.profile.about %}
+                {{ request.user.profile.about }}
+            {% endif %}
         </textarea><br>
          <input type="submit" value="update" name="for_about">
         <br>
