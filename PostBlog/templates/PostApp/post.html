@@ -34,7 +34,8 @@
     <p>
            <a href="{% url 'likes_list' post.pk %}">{% count_likes post.pk %} likes</a>
         </p>
-        {% posts_ post.pk as like %}
+        {% if request.user.is_authenticated %}
+            {% post_like post.pk as like %}
             {% if like %}
                 {% if like.is_liked %}
                     <button style="background-color: red" onclick="window.location.href = '{% url 'create_like' post.pk %}'">Like</button>
@@ -44,13 +45,24 @@
             {% else %}
                 <button onclick="window.location.href = '{% url 'create_like' post.pk %}'">Like</button>
             {% endif %}
+
+            {% else %}
+                <button onclick="window.location.href = '{% url 'login'%}'">Like</button>
+        {% endif %}
     <hr>
-    <form method="POST">
-        {% csrf_token %}
-        <label for="comment">Your comment:</label><br>
-        <textarea name="comment" id="comment" cols="150" rows="10"></textarea><br>
-        <button type="submit">Send</button>
-    </form>
+    {% for message in messages %}
+        <h1 style="color: red;">{{ message }}</h1>
+    {% endfor %}
+    {% if request.user.is_authenticated %}
+        <form method="POST">
+            {% csrf_token %}
+            <label for="comment">Your comment:</label><br>
+            <textarea name="comment" id="comment" cols="150" rows="10" required></textarea><br>
+            <button type="submit">Send</button>
+        </form>
+        {% else %}
+        <h1>Login or sign up to write comments!</h1>
+    {% endif %}
     <hr>
     {% all_comments post.pk as comments %}
     {% for comment in comments %}

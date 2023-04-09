@@ -6,10 +6,13 @@
 {% endblock title %}
 
 {% block main %}
+    {% for message in messages %}
+        <h1 style="color: red;">{{ message }}</h1>
+    {% endfor %}
     <form method="POST">
         {% csrf_token %}
         <label for="update">Change comment:</label><br>
-        <textarea name="comment" id="update" cols="150" rows="10">
+        <textarea name="comment" id="update" cols="150" rows="10" required>
             {{ comment.comment }}
         </textarea><br>
         <input type="submit" value="Update" >

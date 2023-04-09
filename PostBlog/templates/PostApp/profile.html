@@ -3,6 +3,7 @@
 
 
 {% block main %}
+
     <div style="display: flex;">
         <img style="max-height: 100px; max-width: 100px; border: none; border-radius: 50px; min-width: 100px; min-height: 100px" src="{{ profile.profile_img.url }}" alt="">
         <div>
@@ -30,7 +31,6 @@
         </h1>
         <img style="display: block; max-block-size: 300px;" src="{{ post.image.url }}" alt="">
         <p>{{ post.body }}</p>
-        <p>Author: {{ post.author }}</p>
         <p>Published: {{ post.created_date }}</p>
         <p>
             <a href="{% url 'likes_list' post.pk %}">{% count_likes post.pk %} likes</a>

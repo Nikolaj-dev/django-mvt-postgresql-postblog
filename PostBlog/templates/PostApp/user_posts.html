@@ -31,7 +31,8 @@
             |
             <a href="{% url 'post' post.pk %}">{% count_comments post.pk %} comments</a>
         </p>
-        {% posts_ post.pk as like %}
+        {% if request.user.is_authenticated %}
+            {% post_like post.pk as like %}
             {% if like %}
                 {% if like.is_liked %}
                     <button style="background-color: red" onclick="window.location.href = '{% url 'create_like' post.pk %}'">Like</button>
@@ -41,5 +42,9 @@
             {% else %}
                 <button onclick="window.location.href = '{% url 'create_like' post.pk %}'">Like</button>
             {% endif %}
+
+            {% else %}
+                <button onclick="window.location.href = '{% url 'login'%}'">Like</button>
+        {% endif %}
     {% endfor %}
 {% endblock main %}

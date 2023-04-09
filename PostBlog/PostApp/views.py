@@ -5,33 +5,77 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse, HttpRequest
 from django.contrib.auth.forms import PasswordChangeForm
 from django.shortcuts import render, get_object_or_404, redirect
-
 from .models import Post, PostLike, PostComment, Profile
 
 
-def index(request: HttpRequest) -> HttpResponse:
-    return HttpResponse("Index Page!")
-
-
 def login_(request: HttpRequest) -> HttpResponse:
-    context = {
-
-    }
     if request.method == "POST":
-        username = request.POST['username']
-        password = request.POST['password']
-        user = authenticate(
-            request,
-            username=username,
-            password=password,
-        )
-        if user is not None:
-            login(request, user)
-        return redirect('posts')
-    return render(request, 'login.html', context=context)
+        try:
+            username = request.POST['username']
+            password = request.POST['password']
+            user = authenticate(
+                request,
+                username=username,
+                password=password,
+            )
+            if user is not None:
+                login(request, user)
+                return redirect('posts')
+            else:
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    'Wrong login or password!'
+                )
+                return redirect('login')
+        except Exception:
+            return redirect('login')
+    return render(request, 'login.html')
 
 
-def all_posts(request):
+def create_profile(request: HttpRequest) -> HttpResponse:
+    if request.method == "POST":
+        try:
+            username = request.POST['username']
+            password1 = request.POST['password1']
+            password2 = request.POST['password2']
+            profile_image = request.FILES['image']
+            nickname = request.POST['nickname']
+            if password1 == password2:
+                User.objects.create_user(
+                    username=username,
+                    password=password1,
+                )
+                user_instance = User.objects.get(
+                    username=username,
+                )
+                Profile.objects.create(
+                    user=user_instance,
+                    profile_img=profile_image,
+                    nickname=nickname,
+                )
+                user = authenticate(request, username=username, password=password1)
+                if user is not None:
+                    login(request, user)
+                    return redirect('posts')
+                else:
+                    return redirect('sign_up')
+            else:
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    'Passwords are not equal!')
+                return redirect('sign_up')
+        except Exception:
+            messages.add_message(
+                request,
+                messages.ERROR,
+                'All fields must be set!')
+            return redirect('sign_up')
+    return render(request, 'sign_up.html')
+
+
+def all_posts(request: HttpRequest) -> HttpResponse:
     posts = Post.objects.all()
     context = {
         "posts": posts,
@@ -44,56 +88,84 @@ def detailed_post(request: HttpRequest, pk: int) -> HttpResponse:
         "post": get_object_or_404(Post, pk=pk)
     }
     if request.method == "POST":
-        try:
-            PostComment.objects.create(
-                who_commented_id=request.user.id,
-                for_post_id=pk,
-                comment=request.POST['comment']
+        comment = request.POST['comment']
+        if str(comment).strip() == '':
+            messages.add_message(
+                request,
+                messages.ERROR,
+                'Comment can not be empty!'
             )
-        except Exception as error:
-            return HttpResponse(str(error))
+            return redirect('post', pk=pk)
+        else:
+            try:
+                PostComment.objects.create(
+                    who_commented_id=request.user.id,
+                    for_post_id=pk,
+                    comment=comment,
+                )
+            except Exception:
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    'Server error!'
+                )
+        return redirect('post', pk=pk)
     return render(request, 'post.html', context=context)
 
 
 @login_required
 def create_post(request: HttpRequest) -> HttpResponse:
-    context = {
-
-    }
     if request.method == "POST":
-        title = request.POST['title']
-        body = request.POST['body']
-        image = request.FILES['image']
-        Post.objects.create(
-            title=title,
-            body=body,
-            author=request.user,
-            image=image,
-        )
-        return redirect('posts')
-    return render(request, 'create_post.html', context=context)
+        try:
+            title = request.POST['title']
+            body = request.POST['body']
+            image = request.FILES['image']
+            if str(title).strip() == '' or str(body).strip() == '':
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    'All fields must be set!'
+                )
+                return redirect('create_post')
+            else:
+                Post.objects.create(
+                        title=title,
+                        body=body,
+                        author=request.user,
+                        image=image,
+                    )
+                return redirect('posts')
+        except Exception:
+            messages.add_message(
+                request,
+                messages.ERROR,
+                'Image filed must be set!'
+            )
+            return redirect('create_post')
+    return render(request, 'create_post.html')
 
 
 @login_required
 def update_post(request: HttpRequest, pk: int) -> HttpResponse:
-    post = Post.objects.get(pk=pk)
+    post = get_object_or_404(Post, pk=pk)
     if request.user.username == post.author.username:
         context = {
             "title_value": post.title,
             "body_value": post.body,
             "img_value": post.image,
+            "pk": pk,
         }
         if request.method == "POST":
-            if request.FILES.get('image') is None:
+            if 'for_title' in request.POST:
                 post.title = request.POST['title']
+                post.save()
+            elif 'for_body' in request.POST:
                 post.body = request.POST['body']
                 post.save()
-            else:
-                post.title = request.POST['title']
-                post.body = request.POST['body']
-                post.image = request.FILES.get('image')
+            elif 'for_image' in request.POST:
+                post.image = request.FILES['image']
                 post.save()
-            return redirect('post', pk=pk)
+            return redirect('update_post', pk=pk)
     else:
         return HttpResponse("Method not allowed!")
     return render(request, 'update_post.html', context=context)
@@ -101,7 +173,7 @@ def update_post(request: HttpRequest, pk: int) -> HttpResponse:
 
 @login_required
 def delete_post(request: HttpRequest, pk: int) -> HttpResponse:
-    post = Post.objects.get(pk=pk)
+    post = get_object_or_404(Post, pk=pk)
     if request.user.pk == post.author_id:
         post.delete()
         return redirect("posts")
@@ -121,7 +193,7 @@ def user_posts(request: HttpRequest, author: str) -> HttpResponse:
 
 
 def all_likes(request: HttpRequest, pk: int) -> HttpResponse:
-    post = Post.objects.get(pk=pk)
+    post = get_object_or_404(Post, pk=pk)
     likes = PostLike.objects.filter(for_post_id=post.id)
     context = {
         "likes": likes,
@@ -129,6 +201,7 @@ def all_likes(request: HttpRequest, pk: int) -> HttpResponse:
     return render(request, 'likes_list.html', context=context)
 
 
+@login_required
 def create_like(request: HttpRequest, pk: int) -> HttpResponse:
     post = Post.objects.get(pk=pk)
     user = request.user
@@ -158,9 +231,19 @@ def delete_comment(request: HttpRequest, pk: int) -> HttpResponse:
 @login_required
 def update_comment(request: HttpRequest, pk: int) -> HttpResponse:
     get_comment = PostComment.objects.get(pk=pk)
+
     if request.method == "POST":
-        get_comment.comment = request.POST.get('comment')
-        get_comment.save()
+        comment = request.POST['comment']
+        if str(comment).strip() == '':
+            messages.add_message(
+                request,
+                messages.ERROR,
+                'Comment can not be empty!'
+            )
+            return redirect('update_comment', pk=pk)
+        else:
+            get_comment.comment = comment
+            get_comment.save()
         return redirect('post', pk=get_comment.for_post_id)
 
     context = {
@@ -169,6 +252,7 @@ def update_comment(request: HttpRequest, pk: int) -> HttpResponse:
     return render(request, 'comment_update.html', context=context)
 
 
+@login_required
 def detailed_profile(request: HttpRequest) -> HttpResponse:
     try:
         profile = Profile.objects.get(user_id=request.user.id)
@@ -183,60 +267,42 @@ def detailed_profile(request: HttpRequest) -> HttpResponse:
     return render(request, 'profile.html', context=context)
 
 
-def create_profile(request: HttpRequest) -> HttpResponse:
-    if request.method == "POST":
-        username = request.POST['username']
-        password1 = request.POST['password1']
-        password2 = request.POST['password2']
-        profile_image = request.FILES['image']
-        nickname = request.POST['nickname']
-        if password1 == password2:
-            User.objects.create_user(
-                username=username,
-                password=password1,
-            )
-            user_instance = User.objects.get(
-                username=username,
-            )
-            Profile.objects.create(
-                user=user_instance,
-                profile_img=profile_image,
-                nickname=nickname,
-            )
-            user = authenticate(request, username=username, password=password1)
-            if user is not None:
-                login(request, user)
-                return redirect('posts')
-            else:
-                return redirect('sign_up')
-
-        else:
-            messages.add_message(request, messages.ERROR, 'Passwords are not equal!')
-            return redirect('sign_up')
-    return render(request, 'sign_up.html')
-
-
 @login_required
 def update_profile(request: HttpRequest) -> HttpResponse:
     get_profile = Profile.objects.get(user=request.user)
     if request.method == "POST":
+        try:
+            if 'for_nickname' in request.POST:
+                nickname = request.POST['nickname']
+                if str(nickname).strip() == '':
+                    messages.add_message(
+                        request,
+                        messages.ERROR,
+                        'Nickname cannot be empty!'
+                    )
+                    return redirect('update_profile')
+                get_profile.nickname = nickname
+                get_profile.save()
+            if 'for_image' in request.POST:
+                get_profile.profile_img = request.FILES['image']
+                get_profile.save()
+            if 'for_about' in request.POST:
+                get_profile.about = request.POST['about']
+                get_profile.save()
 
-        if 'for_nickname' in request.POST:
-            get_profile.nickname = request.POST['nickname']
-            get_profile.save()
-
-        if 'for_image' in request.POST:
-            get_profile.profile_img = request.FILES['image']
-            get_profile.save()
-        if 'for_about' in request.POST:
-            get_profile.about = request.POST['about']
-            get_profile.save()
-
-        return redirect('profile')
+            return redirect('profile')
+        except Exception:
+            messages.add_message(
+                request,
+                messages.ERROR,
+                'Server error!'
+            )
+            return redirect('update_profile')
 
     return render(request, 'update_profile.html')
 
 
+@login_required
 def change_password(request: HttpRequest) -> HttpResponse:
     if request.method == "POST":
         user = request.user
@@ -245,6 +311,13 @@ def change_password(request: HttpRequest) -> HttpResponse:
             update_session_auth_hash(request, form.save())
             messages.add_message(request, messages.SUCCESS, 'Password has been changed.')
             return redirect('profile')
+        else:
+            messages.add_message(
+                request,
+                messages.ERROR,
+                'Form is not valid! Check the correction of the fields!'
+            )
+            return redirect('change_password')
     context = {
         "form": PasswordChangeForm(request.user),
     }

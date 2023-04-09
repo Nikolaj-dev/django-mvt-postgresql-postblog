@@ -6,6 +6,9 @@
 {% endblock title %}
 
 {% block main %}
+    {% for message in messages %}
+        <h1 style="color: red;">{{ message }}</h1>
+    {% endfor %}
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         <label for="nickname">Nickname: </label>

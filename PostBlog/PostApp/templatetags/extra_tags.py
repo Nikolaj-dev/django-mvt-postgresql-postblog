@@ -6,7 +6,8 @@ register = template.Library()
 
 
 @register.simple_tag(takes_context=True)
-def posts_(context, post_id):
+# check if like on the post exists, if it does, then check if it is liked or not
+def post_like(context, post_id):
     user = context["request"].user
     try:
         like = PostLike.objects.get(for_post_id=post_id, who_liked_id=user.id)
@@ -41,14 +42,3 @@ def all_comments(post_id):
         for_post=post,
     ).order_by('-created_time')
     return comments
-
-
-@register.simple_tag(takes_context=True)
-def comment_to_delete(context, comment_id):
-    user = context["request"].user
-    try:
-        comment = PostComment.objects.get(who_commented_id=user.id, for_post_id=comment_id)
-        return comment
-    except:
-        return None
-

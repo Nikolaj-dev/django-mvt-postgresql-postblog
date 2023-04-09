@@ -12,19 +12,19 @@
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         <label for="username">Login:</label><br>
-        <input id="username" type="text" name="username"><br>
+        <input id="username" type="text" name="username" required><br>
 
         <label for="password1">Password:</label><br>
-        <input id="password1" type="password" name="password1"><br>
+        <input id="password1" type="password" name="password1" required><br>
 
         <label for="password2">Repeat the password:</label><br>
-        <input id="password2" type="text" name="password2"><br>
+        <input id="password2" type="text" name="password2" required><br>
 
         <label for="image">Profile image:</label><br>
-        <input id="image" type="file" name="image"><br>
+        <input id="image" type="file" name="image" required><br>
 
         <label for="nickname">Nickname:</label><br>
-        <input id="nickname" type="text" name="nickname"><br>
+        <input id="nickname" type="text" name="nickname" required><br>
 
         <input type="submit" value="Sign Up">
     </form>
