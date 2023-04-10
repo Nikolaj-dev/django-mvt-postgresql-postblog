@@ -15,6 +15,10 @@
         <input type="text" name="nickname" id="nickname" value="{{ request.user.profile.nickname }}">
          <input type="submit" value="update" name="for_nickname">
         <br>
+        <label for="email">Email: </label>
+        <input type="email" name="email" id="email" value="{{ request.user.profile.user.email }}">
+         <input type="submit" value="update" name="for_email">
+        <br>
         <label for="image">New image: </label><br>
         <a href="{{ request.user.profile.profile_img.url }}">Current profile image</a><br>
         <input type="file" name="image" id="image">

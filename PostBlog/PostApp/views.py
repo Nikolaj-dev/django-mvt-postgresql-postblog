@@ -41,10 +41,12 @@ def create_profile(request: HttpRequest) -> HttpResponse:
             password2 = request.POST['password2']
             profile_image = request.FILES['image']
             nickname = request.POST['nickname']
+            email = request.POST['email']
             if password1 == password2:
                 User.objects.create_user(
                     username=username,
                     password=password1,
+                    email=email,
                 )
                 user_instance = User.objects.get(
                     username=username,
@@ -289,6 +291,9 @@ def update_profile(request: HttpRequest) -> HttpResponse:
                 get_profile.save()
             if 'for_about' in request.POST:
                 get_profile.about = request.POST['about']
+                get_profile.save()
+            if 'for_email' in request.POST:
+                get_profile.user.email = request.POST['email']
                 get_profile.save()
 
             return redirect('profile')
