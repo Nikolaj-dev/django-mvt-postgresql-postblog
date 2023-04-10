@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.contrib.auth import login, authenticate, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.core.paginator import Paginator
 from django.http import HttpResponse, HttpRequest
 from django.contrib.auth.forms import PasswordChangeForm
 from django.shortcuts import render, get_object_or_404, redirect
@@ -78,10 +79,14 @@ def create_profile(request: HttpRequest) -> HttpResponse:
 
 
 def all_posts(request: HttpRequest) -> HttpResponse:
-    posts = Post.objects.all()
+    posts = Post.objects.all().order_by('title')
+    paginator = Paginator(posts, 3)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     context = {
-        "posts": posts,
+        "page_obj": page_obj,
     }
+
     return render(request, 'posts.html', context=context)
 
 
@@ -185,12 +190,15 @@ def delete_post(request: HttpRequest, pk: int) -> HttpResponse:
 
 
 def user_posts(request: HttpRequest, author: str) -> HttpResponse:
-    posts = Post.objects.filter(author__profile__nickname=author)
+    posts = Post.objects.filter(author__profile__nickname=author).order_by('title')
+    paginator = Paginator(posts, 3)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     context = {
-        "posts": posts,
         "author": Profile.objects.get(
             nickname=author,
-        )
+        ),
+        "page_obj": page_obj,
     }
     return render(request, 'user_posts.html', context=context)
 
@@ -261,11 +269,14 @@ def detailed_profile(request: HttpRequest) -> HttpResponse:
         profile = Profile.objects.get(user_id=request.user.id)
     except Exception as error:
         return redirect(request.META.get('HTTP_REFERER', None))
+
+    posts = Post.objects.filter(author__profile=profile).order_by('title')
+    paginator = Paginator(posts, 3)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     context = {
         "profile": profile,
-        "posts": Post.objects.filter(
-            author__profile=profile,
-        )
+        "page_obj": page_obj,
     }
     return render(request, 'profile.html', context=context)
 

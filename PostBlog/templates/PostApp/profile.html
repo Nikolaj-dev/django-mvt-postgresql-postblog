@@ -27,7 +27,8 @@
     </div>
     {% endif %}
 <h1 style="text-align: center">My posts</h1>
-    {% for post in posts %}
+
+    {% for post in page_obj %}
 
         <h1>
             <a href="{% url 'post' post.slug %}">
@@ -53,4 +54,25 @@
                 <button onclick="window.location.href = '{% url 'create_like' post.slug %}'">Like</button>
             {% endif %}
     {% endfor %}
+
+    <hr>
+
+    <div>
+    <span>
+        {% if page_obj.has_previous %}
+            <a href="?page=1">&laquo; first</a>
+            <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span>
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+        {% endif %}
+    </span>
+</div>
+
 {% endblock %}
