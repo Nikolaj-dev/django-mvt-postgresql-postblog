@@ -17,8 +17,8 @@ def post_like(context, post_id):
 
 
 @register.simple_tag()
-def count_comments(post_id):
-    post = Post.objects.get(pk=post_id)
+def count_comments(slug: str) -> int:
+    post = Post.objects.get(slug=slug)
     comments = PostComment.objects.filter(
         for_post=post,
     ).count()
@@ -26,8 +26,8 @@ def count_comments(post_id):
 
 
 @register.simple_tag()
-def count_likes(post_id):
-    post = Post.objects.get(pk=post_id)
+def count_likes(slug: int) -> int:
+    post = Post.objects.get(slug=slug)
     likes = PostLike.objects.filter(
         for_post=post,
         is_liked=True,

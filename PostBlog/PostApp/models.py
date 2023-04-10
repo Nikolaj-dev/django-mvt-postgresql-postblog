@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import pre_delete, pre_save
 from django.dispatch import receiver
+from django.utils.text import slugify
 
 
 class Post(models.Model):
@@ -12,9 +13,29 @@ class Post(models.Model):
     created_date = models.DateField('Date of creation', auto_now_add=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     image = models.ImageField(upload_to='posts_images/')
+    slug = models.SlugField(
+        null=False,
+        blank=True,
+        unique=True,
+    )
 
     def __str__(self):
         return self.title
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+
+            q = Post.objects.values_list('id', flat=True).order_by('-id')[:1]
+            if len(q):
+                self.number = str(self.id) if self.id else str(
+                    int(q.get()) + 1)
+            else:
+                self.number = 1
+
+            self.slug = slugify(
+                self.title + '-' + str(self.number)
+            )
+        super(Post, self).save(*args, **kwargs)
 
 
 @receiver(pre_delete, sender=Post)

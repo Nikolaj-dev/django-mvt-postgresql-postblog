@@ -18,29 +18,28 @@
 
     {% for post in posts %}
         <h1>
-            <a href="{% url 'post' post.pk %}">
+            <a href="{% url 'post' post.slug %}">
                 {{ post.title }}
             </a>
         </h1>
         <img style="display: block; max-block-size: 300px;" src="{{ post.image.url }}" alt="">
         <p>{{ post.body }}</p>
-        <p>Author: {{ post.author }}</p>
         <p>Published: {{ post.created_date }}</p>
         <p>
-            <a href="{% url 'likes_list' post.pk %}">{% count_likes post.pk %} likes</a>
+            <a href="{% url 'likes_list' post.slug %}">{% count_likes post.slug %} likes</a>
             |
-            <a href="{% url 'post' post.pk %}">{% count_comments post.pk %} comments</a>
+            <a href="{% url 'post' post.slug %}">{% count_comments post.slug %} comments</a>
         </p>
         {% if request.user.is_authenticated %}
             {% post_like post.pk as like %}
             {% if like %}
                 {% if like.is_liked %}
-                    <button style="background-color: red" onclick="window.location.href = '{% url 'create_like' post.pk %}'">Like</button>
+                    <button style="background-color: red" onclick="window.location.href = '{% url 'create_like' post.slug %}'">Like</button>
                 {% else %}
-                    <button onclick="window.location.href = '{% url 'create_like' post.pk %}'">Like</button>
+                    <button onclick="window.location.href = '{% url 'create_like' post.slug %}'">Like</button>
                 {% endif %}
             {% else %}
-                <button onclick="window.location.href = '{% url 'create_like' post.pk %}'">Like</button>
+                <button onclick="window.location.href = '{% url 'create_like' post.slug %}'">Like</button>
             {% endif %}
 
             {% else %}

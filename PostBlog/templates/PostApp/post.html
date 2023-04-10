@@ -26,24 +26,24 @@
         <a href="{% url 'delete_post' post.pk %}">
         Delete post
     </a>
-    <a href="{% url 'update_post' post.pk %}">
+    <a href="{% url 'update_post' post.slug %}">
         Update post
     </a>
     </span>
     {% endif %}
     <p>
-           <a href="{% url 'likes_list' post.pk %}">{% count_likes post.pk %} likes</a>
+           <a href="{% url 'likes_list' post.slug %}">{% count_likes post.slug %} likes</a>
         </p>
         {% if request.user.is_authenticated %}
-            {% post_like post.pk as like %}
+            {% post_like post.slug as like %}
             {% if like %}
                 {% if like.is_liked %}
-                    <button style="background-color: red" onclick="window.location.href = '{% url 'create_like' post.pk %}'">Like</button>
+                    <button style="background-color: red" onclick="window.location.href = '{% url 'create_like' post.slug %}'">Like</button>
                 {% else %}
-                    <button onclick="window.location.href = '{% url 'create_like' post.pk %}'">Like</button>
+                    <button onclick="window.location.href = '{% url 'create_like' post.slug %}'">Like</button>
                 {% endif %}
             {% else %}
-                <button onclick="window.location.href = '{% url 'create_like' post.pk %}'">Like</button>
+                <button onclick="window.location.href = '{% url 'create_like' post.slug %}'">Like</button>
             {% endif %}
 
             {% else %}
@@ -81,7 +81,7 @@
         </p>
         {% if request.user == comment.who_commented %}
             <button name="delete" onclick="window.location.href = '{% url 'delete_comment' comment.pk %}'">Delete</button>
-            <button name="update" onclick="window.location.href = '{% url 'update_comment' comment.pk %}'">Update</button>
+            <button name="update" onclick="window.location.href = '{% url 'update_comment' comment.for_post.slug %}'">Update</button>
         {% endif %}
     {% endfor %}
 {% endblock main %}

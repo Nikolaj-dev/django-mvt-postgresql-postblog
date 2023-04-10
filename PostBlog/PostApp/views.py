@@ -83,9 +83,10 @@ def all_posts(request: HttpRequest) -> HttpResponse:
     return render(request, 'posts.html', context=context)
 
 
-def detailed_post(request: HttpRequest, pk: int) -> HttpResponse:
+def detailed_post(request: HttpRequest, slug: str) -> HttpResponse:
+    post = get_object_or_404(Post, slug=slug)
     context = {
-        "post": get_object_or_404(Post, pk=pk)
+        "post": post,
     }
     if request.method == "POST":
         comment = request.POST['comment']
@@ -95,12 +96,12 @@ def detailed_post(request: HttpRequest, pk: int) -> HttpResponse:
                 messages.ERROR,
                 'Comment can not be empty!'
             )
-            return redirect('post', pk=pk)
+            return redirect('post', slug=slug)
         else:
             try:
                 PostComment.objects.create(
                     who_commented_id=request.user.id,
-                    for_post_id=pk,
+                    for_post_id=post.id,
                     comment=comment,
                 )
             except Exception:
@@ -109,7 +110,7 @@ def detailed_post(request: HttpRequest, pk: int) -> HttpResponse:
                     messages.ERROR,
                     'Server error!'
                 )
-        return redirect('post', pk=pk)
+        return redirect('post', slug=slug)
     return render(request, 'post.html', context=context)
 
 
@@ -146,14 +147,14 @@ def create_post(request: HttpRequest) -> HttpResponse:
 
 
 @login_required
-def update_post(request: HttpRequest, pk: int) -> HttpResponse:
-    post = get_object_or_404(Post, pk=pk)
+def update_post(request: HttpRequest, slug: str) -> HttpResponse:
+    post = get_object_or_404(Post, slug=slug)
     if request.user.username == post.author.username:
         context = {
             "title_value": post.title,
             "body_value": post.body,
             "img_value": post.image,
-            "pk": pk,
+            "slug": slug,
         }
         if request.method == "POST":
             if 'for_title' in request.POST:
@@ -165,7 +166,7 @@ def update_post(request: HttpRequest, pk: int) -> HttpResponse:
             elif 'for_image' in request.POST:
                 post.image = request.FILES['image']
                 post.save()
-            return redirect('update_post', pk=pk)
+            return redirect('update_post', slug=slug)
     else:
         return HttpResponse("Method not allowed!")
     return render(request, 'update_post.html', context=context)
@@ -192,8 +193,8 @@ def user_posts(request: HttpRequest, author: str) -> HttpResponse:
     return render(request, 'user_posts.html', context=context)
 
 
-def all_likes(request: HttpRequest, pk: int) -> HttpResponse:
-    post = get_object_or_404(Post, pk=pk)
+def all_likes(request: HttpRequest, slug: int) -> HttpResponse:
+    post = get_object_or_404(Post, slug=slug)
     likes = PostLike.objects.filter(for_post_id=post.id)
     context = {
         "likes": likes,
@@ -202,8 +203,8 @@ def all_likes(request: HttpRequest, pk: int) -> HttpResponse:
 
 
 @login_required
-def create_like(request: HttpRequest, pk: int) -> HttpResponse:
-    post = Post.objects.get(pk=pk)
+def create_like(request: HttpRequest, slug: str) -> HttpResponse:
+    post = Post.objects.get(slug=slug)
     user = request.user
     try:
         like = PostLike.objects.get(for_post=post, who_liked=user)
@@ -229,8 +230,8 @@ def delete_comment(request: HttpRequest, pk: int) -> HttpResponse:
 
 
 @login_required
-def update_comment(request: HttpRequest, pk: int) -> HttpResponse:
-    get_comment = PostComment.objects.get(pk=pk)
+def update_comment(request: HttpRequest, slug: str) -> HttpResponse:
+    get_comment = PostComment.objects.get(for_post__slug=slug)
 
     if request.method == "POST":
         comment = request.POST['comment']
@@ -240,11 +241,11 @@ def update_comment(request: HttpRequest, pk: int) -> HttpResponse:
                 messages.ERROR,
                 'Comment can not be empty!'
             )
-            return redirect('update_comment', pk=pk)
+            return redirect('update_comment', slug=slug)
         else:
             get_comment.comment = comment
             get_comment.save()
-        return redirect('post', pk=get_comment.for_post_id)
+        return redirect('post', slug=slug)
 
     context = {
         "comment": get_comment,

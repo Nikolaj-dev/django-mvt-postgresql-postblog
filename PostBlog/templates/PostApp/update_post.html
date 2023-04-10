@@ -6,7 +6,7 @@
 {% endblock title %}
 
 {% block main %}
-    <a href="{% url 'post' pk %}">Back to the post</a>
+    <a href="{% url 'post' slug %}">Back to the post</a>
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         <label for="title">Title: </label><br>

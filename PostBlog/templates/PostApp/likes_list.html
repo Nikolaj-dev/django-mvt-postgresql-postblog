@@ -7,9 +7,15 @@
             {% if like.is_liked %}
                 <div style="display: flex;">
                     <img style="max-height: 50px; max-width: 50px; border: none; border-radius: 25px; min-width: 50px; min-height: 50px" src="{{ like.who_liked.profile.profile_img.url }}" alt="">
-                    <a href="{% url 'user_posts' like.who_liked.profile.nickname %}">
+                    {% if request.user == like.who_liked %}
+                        <a href="{% url 'profile' %}">
+                            {{ like.who_liked.profile.nickname }}
+                        </a>
+                        {% else %}
+                         <a href="{% url 'user_posts' like.who_liked.profile.nickname %}">
                         {{ like.who_liked.profile.nickname }}
                     </a>
+                    {% endif %}
                 </div>
             {% endif %}
         </ul>
