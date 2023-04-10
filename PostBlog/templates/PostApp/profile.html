@@ -2,6 +2,11 @@
 {% load extra_tags %}
 
 
+{% block title %}
+    Profile
+{% endblock title %}
+
+
 {% block main %}
 
     <div style="display: flex;">
@@ -33,9 +38,9 @@
         <p>{{ post.body }}</p>
         <p>Published: {{ post.created_date }}</p>
         <p>
-            <a href="{% url 'likes_list' post.pk %}">{% count_likes post.slug %} likes</a>
+            <a href="{% url 'likes_list' post.slug %}">{% count_likes post.slug %} likes</a>
             |
-            <a href="{% url 'post' post.pk %}">{% count_comments post.slug %} comments</a>
+            <a href="{% url 'post' post.slug %}">{% count_comments post.slug %} comments</a>
         </p>
         {% post_like post.pk as like %}
             {% if like %}

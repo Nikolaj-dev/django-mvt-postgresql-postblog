@@ -2,7 +2,7 @@
 {% load extra_tags %}
 
 {% block title %}
-    Posts
+    Posts {{ author.nickname }}
 {% endblock title %}
 
 {% block main %}
@@ -14,7 +14,7 @@
         </div>
     </div>
 
-            <h1 style="text-align: center">{{ author.nickname }}'s posts</h1>
+            <h1 style="text-align: center;">{{ author.nickname }}'s posts</h1>
 
     {% for post in posts %}
         <h1>
