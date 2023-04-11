@@ -35,7 +35,7 @@
            <a href="{% url 'likes_list' post.slug %}">{% count_likes post.slug %} likes</a>
         </p>
         {% if request.user.is_authenticated %}
-            {% post_like post.slug as like %}
+            {% post_like post.pk as like %}
             {% if like %}
                 {% if like.is_liked %}
                     <button style="background-color: red" onclick="window.location.href = '{% url 'create_like' post.slug %}'">Like</button>

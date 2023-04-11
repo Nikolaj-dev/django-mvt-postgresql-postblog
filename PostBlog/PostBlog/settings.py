@@ -1,7 +1,8 @@
 from pathlib import Path
 import environ
 import os
-
+from pythonjsonlogger.jsonlogger import JsonFormatter
+from .logging_formatters import CustomJsonFormatter
 
 env = environ.Env()
 env.read_env()
@@ -143,4 +144,37 @@ CACHES = {
             'MAX_ENTRIES': 1000
         }
     }
+}
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+
+    'formatters': {
+        'main_format': {
+            "format": "{asctime} - {levelname} - {module} - {filename} - {message}",
+            "style": "{",
+        },
+        'json_formatter': {
+            '()': CustomJsonFormatter,
+        }
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'main_format',
+        },
+        'file': {
+            'class': 'logging.FileHandler',
+            'formatter': 'json_formatter',
+            'filename': "information.log",
+        },
+    },
+    'loggers': {
+        'main': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
 }

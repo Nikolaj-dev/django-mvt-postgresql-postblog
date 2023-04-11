@@ -26,6 +26,9 @@
         <p>{{ profile.about }}</p>
     </div>
     {% endif %}
+    {% for message in messages %}
+        <h1 style="color: red;">{{ message }}</h1>
+    {% endfor %}
 <h1 style="text-align: center">My posts</h1>
 
     {% for post in page_obj %}
