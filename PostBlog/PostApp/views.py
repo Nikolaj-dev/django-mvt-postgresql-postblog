@@ -8,6 +8,7 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Post, PostLike, PostComment, Profile
 import logging
+from django.views.decorators.cache import cache_page
 
 
 logger = logging.getLogger('main')
@@ -91,6 +92,7 @@ def create_profile(request: HttpRequest) -> HttpResponse:
                 'All fields must be set!')
             return redirect('sign_up')
     return render(request, 'sign_up.html')
+
 
 
 def all_posts(request: HttpRequest) -> HttpResponse:
