@@ -7,6 +7,7 @@ from django.http import HttpResponse, HttpRequest
 from django.contrib.auth.forms import PasswordChangeForm
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Post, PostLike, PostComment, Profile
+from django.views.decorators.cache import cache_page
 
 
 def login_(request: HttpRequest) -> HttpResponse:
@@ -78,6 +79,7 @@ def create_profile(request: HttpRequest) -> HttpResponse:
     return render(request, 'sign_up.html')
 
 
+@cache_page(60)
 def all_posts(request: HttpRequest) -> HttpResponse:
     posts = Post.objects.all().order_by('title')
     paginator = Paginator(posts, 3)
@@ -189,6 +191,7 @@ def delete_post(request: HttpRequest, pk: int) -> HttpResponse:
         return HttpResponse("Method not allowed!")
 
 
+@cache_page(60)
 def user_posts(request: HttpRequest, author: str) -> HttpResponse:
     posts = Post.objects.filter(author__profile__nickname=author).order_by('title')
     paginator = Paginator(posts, 3)
