@@ -24,4 +24,9 @@ urlpatterns = [
     path('accounts/password_reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
     path('accounts/reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     path('accounts/reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
+    path('profile/my-followers/', views.my_followers, name='my_followers'),
+    path('profile/my-followings/', views.my_followings, name='my_followings'),
+    path('posts/user-followers/<str:nickname>/', views.user_followers, name='user_followers'),
+    path('posts/user-followings/<str:nickname>/', views.user_followings, name='user_followings'),
+    path('posts/user/follow/<int:pk>/', views.to_follow_user, name='to_follow_user'),
 ]

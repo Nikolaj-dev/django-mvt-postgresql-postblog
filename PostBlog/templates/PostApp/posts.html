@@ -16,7 +16,6 @@
                 {{ post.title }}
             </a>
         </h1>
-        {% cache 60 posts %}
         <img style="display: block; max-block-size: 300px;" src="{{ post.image.url }}" alt="">
         <p>{{ post.body }}</p>
         <p>
@@ -31,7 +30,6 @@
             {% endif %}
         </p>
         <p>Published: {{ post.created_date }}</p>
-        {% endcache %}
         <p>
             <a href="{% url 'likes_list' post.slug %}">{% count_likes post.slug %} likes</a>
             |

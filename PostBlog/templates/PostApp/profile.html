@@ -20,6 +20,8 @@
     <span>
         <button onclick="window.location.href = '{% url 'update_profile' %}'">Change profile info</button>
         <button onclick="window.location.href = '{% url 'change_password' %}'">Password reset</button>
+        <button onclick="window.location.href = '{% url 'my_followers' %}'">My followers</button>
+        <button onclick="window.location.href = '{% url 'my_followings' %}'">My followings</button>
     </span>
     {% if profile.about %}
     <div>

@@ -79,6 +79,9 @@ class Profile(models.Model):
     nickname = models.CharField(max_length=64, unique=True)
     about = models.TextField(max_length=5000, null=True, blank=True)
 
+    def __str__(self):
+        return str(self.nickname)
+
 
 @receiver(pre_delete, sender=Profile)
 def profile_image_delete(sender, instance, **kwargs):
@@ -99,3 +102,11 @@ def delete_old_profile_image(sender, instance, **kwargs):
     if not old_file == file:
         if os.path.isfile(old_file.path):
             os.remove(old_file.path)
+
+
+class Follower(models.Model):
+    who_followed = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='who_followed')
+    who_follow = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='who_follow')
+
+    def __str__(self):
+        return str(f'{self.who_follow} following {self.who_followed}')

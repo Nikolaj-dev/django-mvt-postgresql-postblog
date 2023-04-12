@@ -6,7 +6,7 @@ from django.core.paginator import Paginator
 from django.http import HttpResponse, HttpRequest
 from django.contrib.auth.forms import PasswordChangeForm
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Post, PostLike, PostComment, Profile
+from .models import Post, PostLike, PostComment, Profile, Follower
 import logging
 from django.views.decorators.cache import cache_page
 
@@ -92,7 +92,6 @@ def create_profile(request: HttpRequest) -> HttpResponse:
                 'All fields must be set!')
             return redirect('sign_up')
     return render(request, 'sign_up.html')
-
 
 
 def all_posts(request: HttpRequest) -> HttpResponse:
@@ -224,14 +223,18 @@ def delete_post(request: HttpRequest, pk: int) -> HttpResponse:
 def user_posts(request: HttpRequest, author: str) -> HttpResponse:
     logger.info(f'{request.user} connected {request.path}')
     posts = Post.objects.filter(author__profile__nickname=author).order_by('title')
+    author = Profile.objects.get(nickname=author)
+    followed = Follower.objects.filter(
+        who_followed=author,
+        who_follow=request.user.profile
+    )
     paginator = Paginator(posts, 3)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     context = {
-        "author": Profile.objects.get(
-            nickname=author,
-        ),
+        "author": author,
         "page_obj": page_obj,
+        "followed": followed,
     }
     return render(request, 'user_posts.html', context=context)
 
@@ -388,3 +391,70 @@ def change_password(request: HttpRequest) -> HttpResponse:
     }
     return render(request, 'change_user_password.html', context=context)
 
+
+def my_followers(request: HttpRequest) -> HttpResponse:
+    followers = Follower.objects.all().filter(who_followed__nickname=request.user.profile.nickname)
+    context = {
+        "followers": followers,
+    }
+    logger.info(f'{request.user} connected {request.path}.')
+    return render(request, 'followers.html', context=context)
+
+
+def my_followings(request: HttpRequest) -> HttpResponse:
+    followings = Follower.objects.all().filter(who_follow__nickname=request.user.profile.nickname)
+    context = {
+        "followings": followings,
+    }
+    logger.info(f'{request.user} connected {request.path}.')
+    return render(request, 'followings.html', context=context)
+
+
+def user_followers(request: HttpRequest, nickname: str) -> HttpResponse:
+    followers = Follower.objects.all().filter(who_followed__nickname=nickname)
+    context = {
+        "followers": followers,
+    }
+    logger.info(f'{request.user} connected {request.path}.')
+    return render(request, 'followers.html', context=context)
+
+
+def user_followings(request: HttpRequest, nickname) -> HttpResponse:
+    followings = Follower.objects.all().filter(who_follow__nickname=nickname)
+    context = {
+        "followings": followings,
+    }
+    logger.info(f'{request.user} connected {request.path}.')
+    return render(request, 'followings.html', context=context)
+
+
+@login_required
+def to_follow_user(request: HttpRequest, pk: int) -> HttpResponse:
+    who_followed = get_object_or_404(Profile, pk=pk)
+    who_follow = request.user.profile
+    try:
+        followed = Follower.objects.get(
+            who_followed=who_followed,
+            who_follow=who_follow,
+        )
+        if followed:
+            followed.delete()
+            logger.info(f'{request.user} unfollowed {who_followed.nickname}')
+        else:
+            Follower.objects.create(
+                who_followed=who_followed,
+                who_follow=who_follow,
+            )
+            logger.info(f'{request.user} followed {who_followed.nickname}')
+    except Exception as error:
+        try:
+            Follower.objects.create(
+                who_followed=who_followed,
+                who_follow=who_follow,
+            )
+            logger.info(f'{request.user} followed {who_followed.nickname}')
+        except Exception as error:
+            logger.error(f'{request.user}: {error}')
+            messages.add_message(request, messages.ERROR, 'Internal Server Error')
+    logger.info(f'{request.user} connected {request.path}')
+    return redirect(request.META.get('HTTP_REFERER', None))

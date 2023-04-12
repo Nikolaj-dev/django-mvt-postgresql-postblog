@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+
+{% block title %}
+    My followers
+{% endblock %}
+
+
+{% block main %}
+    {% for follower in followers %}
+        <div style="display: flex">
+            <img style="max-height: 50px; max-width: 50px; border: none; border-radius: 25px; min-width: 50px; min-height: 50px" src="{{ follower.who_follow.profile_img.url }}" alt="">
+                {% if follower.who_follow == request.user.profile %}
+                    <a href="{% url 'profile' %}">{{ follower.who_follow.nickname }}</a>
+                {% else %}
+                    <a href="{% url 'user_posts' follower.who_follow.nickname %}">{{ follower.who_follow.nickname }}</a>
+                {% endif %}
+        </div>
+    {% endfor %}
+{% endblock %}
