@@ -1,5 +1,4 @@
-{% extends 'base.html' %}
-{% load cache %}
+{% extends 'base.html' %}}
 {% load extra_tags %}
 
 
@@ -9,7 +8,6 @@
 
 {% block main %}
         <h1>{{ post.title }}</h1>
-    {% cache 60 posts %}
     <img style="display:block; max-block-size: 300px;" src="{{ post.image.url }}" alt="">
         <p>{{ post.body }}</p>
         {% if request.user == post.author %}
@@ -22,7 +20,6 @@
             </a>
             {% endif %}
         <p>Published: {{ post.created_date }}</p>
-    {% endcache %}
     {% if request.user.username == post.author.username %}
     <span>
         <a href="{% url 'delete_post' post.pk %}">

@@ -138,11 +138,15 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': os.path.join(BASE_DIR / 'postblog_cache'),
+        'LOCATION': os.path.join(BASE_DIR / env('DEFAULT_CACHE')),
         'TIMEOUT': 60,
         'OPTIONS': {
             'MAX_ENTRIES': 1000
         }
+    },
+    'redis_cache': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': env('REDIS_LOCATION')
     }
 }
 
