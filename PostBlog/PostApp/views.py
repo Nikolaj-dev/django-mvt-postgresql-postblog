@@ -220,6 +220,7 @@ def delete_post(request: HttpRequest, pk: int) -> HttpResponse:
         return HttpResponse("Method not allowed!")
 
 
+@login_required
 def user_posts(request: HttpRequest, author: str) -> HttpResponse:
     logger.info(f'{request.user} connected {request.path}')
     posts = Post.objects.filter(author__profile__nickname=author).order_by('title')
