@@ -30,7 +30,7 @@
     </a>
     </span>
     {% endif %}
-    <p>
+        <p>
            <a href="{% url 'likes_list' post.slug %}">{% count_likes post.slug %} likes</a>
         </p>
         {% if request.user.is_authenticated %}

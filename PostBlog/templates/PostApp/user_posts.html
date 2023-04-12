@@ -32,7 +32,7 @@
             </a>
         </h1>
         <img style="display: block; max-block-size: 300px;" src="{{ post.image.url }}" alt="">
-        <p>{{ post.body }}</p>
+        <p>{{ post.body|truncatechars:50 }}</p>
         <p>Published: {{ post.created_date }}</p>
         <p>
             <a href="{% url 'likes_list' post.slug %}">{% count_likes post.slug %} likes</a>

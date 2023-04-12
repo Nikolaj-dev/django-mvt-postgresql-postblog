@@ -15,7 +15,7 @@
             </a>
         </h1>
         <img style="display: block; max-block-size: 300px;" src="{{ post.image.url }}" alt="">
-        <p>{{ post.body }}</p>
+        <p>{{ post.body|truncatechars:50 }}</p>
         <p>
             {% if request.user == post.author %}
                 <a href="{% url 'profile' %}">

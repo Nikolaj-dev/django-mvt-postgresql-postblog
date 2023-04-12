@@ -21,6 +21,7 @@
         <button onclick="window.location.href = '{% url 'change_password' %}'">Password reset</button>
         <button onclick="window.location.href = '{% url 'my_followers' %}'">My followers</button>
         <button onclick="window.location.href = '{% url 'my_followings' %}'">My followings</button>
+        <button onclick="window.location.href = '{% url 'my_likes' %}'">Posts I liked</button>
     </span>
     {% if profile.about %}
     <div>
@@ -40,7 +41,7 @@
             </a>
         </h1>
         <img style="display: block; max-block-size: 300px;" src="{{ post.image.url }}" alt="">
-        <p>{{ post.body }}</p>
+        <p>{{ post.body|truncatechars:50 }}</p>
         <p>Published: {{ post.created_date }}</p>
         <p>
             <a href="{% url 'likes_list' post.slug %}">{% count_likes post.slug %} likes</a>

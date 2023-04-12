@@ -8,7 +8,6 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Post, PostLike, PostComment, Profile, Follower
 import logging
-from django.views.decorators.cache import cache_page
 
 
 logger = logging.getLogger('main')
@@ -459,3 +458,15 @@ def to_follow_user(request: HttpRequest, pk: int) -> HttpResponse:
             messages.add_message(request, messages.ERROR, 'Internal Server Error')
     logger.info(f'{request.user} connected {request.path}')
     return redirect(request.META.get('HTTP_REFERER', None))
+
+
+@login_required
+def my_likes(request: HttpRequest) -> HttpResponse:
+    likes = PostLike.objects.filter(
+        who_liked=request.user
+    )
+    context = {
+        "likes": likes,
+    }
+    logger.info(f'{request.user} connected {request.path}')
+    return render(request, 'my_likes.html', context=context)

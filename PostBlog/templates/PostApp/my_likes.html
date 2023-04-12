@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load extra_tags %}
+
+{% block title %}
+    My Likes
+{% endblock %}
+
+
+{% block main %}
+    {% for like in likes %}
+
+        {% if like.is_liked %}
+            <h1>
+                <a href="{% url 'post' like.for_post.slug %}">{{ like.for_post.title }}</a>
+            </h1>
+                 <img style="display:block; max-block-size: 300px;" src="{{ like.for_post.image.url }}" alt="">
+                     <p>{{ like.for_post.body|truncatechars:50}}</p>
+             {% if request.user == like.for_post.author %}
+                <a href="{% url 'profile' %}">
+                    Author: {{ like.for_post.author.profile.nickname }}
+                </a>
+            {% else %}
+            <a href="{% url 'user_posts' like.for_post.author.profile.nickname %}">
+                Author: {{ like.for_post.author.profile.nickname }}
+            </a>
+            {% endif %}
+                <p>Published: {{ like.for_post.created_date }}</p>
+
+        {% endif %}
+    {% endfor %}
+
+{% endblock %}
