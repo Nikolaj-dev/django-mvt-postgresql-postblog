@@ -1,3 +1,4 @@
+{% load static %}
 <!doctype html>
 <html lang="en">
 <head>
@@ -5,30 +6,157 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="{% static 'bootstrap-5/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.4/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{% static 'custom_css/index.css' %}">
     <title>
         {% block title %}
         {% endblock title %}
     </title>
 </head>
 <body>
-    <nav>
-        <a href="{% url 'posts' %}">
+
+<div class="wrapper">
+    <div class="content">
+        <div class="container-fluid">
+<nav class="navbar navbar-dark navbar-expand-lg ">
+    <div class="container-fluid p-3" style="background-color: #005858">
+        <ul class="navbar-nav">
+         <a class="navbar-brand bi bi-house-door-fill" href="{% url 'posts' %}">
             Home
         </a>
         {% if request.user.is_authenticated %}
             {% if request.user.profile %}
-                <a href="{% url 'create_post' %}">Create a new post</a>
+                <li class="nav-item">
+                    <a class="nav-link bi bi-patch-plus-fill" href="{% url 'create_post' %}">Create a new post</a>
+                </li>
             {% endif %}
-            <a href="{% url 'profile' %}">Profile</a>
-            <a href="{% url 'logout' %}">Logout</a>
+                <li class="nav-item">
+                    <a class="nav-link bi bi-person-circle" href="{% url 'profile' %}">Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link bi bi-door-open-fill" href="{% url 'logout' %}">Logout</a>
+                </li>
         {% else %}
-            <a href="{% url 'login' %}">Login</a>
-            <a href="{% url 'sign_up' %}">Sign Up</a>
-
+            <li class="nav-item">
+                <a class="nav-link bi bi-box-arrow-in-right" href="{% url 'login' %}">Login</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link bi bi-clipboard2-check-fill" href="{% url 'sign_up' %}">Sign Up</a>
+            </li>
         {% endif %}
-    </nav>
-    <hr>
+        </ul>
+         <form class="d-flex justify-content-end" action="{% url 'search' %}">
+                <div class="col-6">
+                    <input class="form-control" type="text" name="q" placeholder="Search">
+                </div>
+                <div class="col-6">
+                    <button class="ms-3 bi bi-search btn btn-success" type="submit">Search</button>
+                </div>
+    </form>
+
+    <div class="dropdown" style="margin-right: 10rem;">
+  <a class="bg-transparent dropdown-toggle text-decoration-none text-white bi bi-gear-wide" type="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+    Settings
+  </a>
+  <ul class="dropdown-menu" style="background-color: #005858 " aria-labelledby="dropdownMenuLink">
+    <li><a class="dropdown-item bg-transparent text-white bi bi-person-badge" href="{% url 'update_profile' %}">Change profile info</a></li>
+    <li><a class="dropdown-item bg-transparent text-white bi bi-key-fill" href="{% url 'change_password' %}">Change the profile's password</a></li>
+    <li><a class="dropdown-item bg-transparent text-white bi bi-bookmark-heart" href="{% url 'my_likes' %}">Posts I liked</a></li>
+  </ul>
+</div>
+    </div>
+</nav>
+</div>
     {% block main %}
     {% endblock main %}
+    </div>
+
+<div class="footer">
+    <footer class="text-center text-lg-start text-white" style="background-color: #005858;" >
+  <!-- Section: Social media -->
+  <section class="d-flex justify-content-center justify-content-lg-between p-4 border-bottom">
+    <!-- Left -->
+    <div class="me-5 d-none d-lg-block">
+      <span>Get connected with us on social networks:</span>
+    </div>
+    <!-- Left -->
+
+    <!-- Right -->
+    <div>
+      <a href="" class="me-4 text-reset">
+        <i class="bi bi-facebook-f"></i>
+      </a>
+      <a href="" class="me-4 text-reset">
+        <i class="bi bi-twitter"></i>
+      </a>
+      <a href="" class="me-4 text-reset">
+        <i class="bi bi-google"></i>
+      </a>
+      <a href="" class="me-4 text-reset">
+        <i class="bi bi-instagram"></i>
+      </a>
+      <a href="" class="me-4 text-reset">
+        <i class="bi bi-linkedin"></i>
+      </a>
+      <a href="" class="me-4 text-reset">
+        <i class="bi bi-github"></i>
+      </a>
+    </div>
+    <!-- Right -->
+  </section>
+  <!-- Section: Social media -->
+
+  <!-- Section: Links  -->
+  <section class="">
+    <div class="container text-center text-md-start mt-5">
+      <!-- Grid row -->
+      <div class="row mt-3">
+        <!-- Grid column -->
+        <div class="col-md-3 col-lg-4 col-xl-3 mx-auto mb-4">
+          <!-- Content -->
+          <h6 class="text-uppercase fw-bold mb-4">
+            <i class="bi bi-buildings me-3"></i>NixBlog
+          </h6>
+          <p>
+            Here you can share your thoughts, feelings and whatever you want with everyone!
+          </p>
+            <a class="text-decoration-none text-white" href="{% url 'about' %}">About us</a>
+            |
+            <a class="text-decoration-none text-white"  href="{% url 'feedback' %}">Feedback</a>
+        </div>
+        <!-- Grid column -->
+
+        <!-- Grid column -->
+        <div class="col-md-4 col-lg-3 col-xl-3 mx-auto mb-md-0 mb-4">
+          <!-- Links -->
+          <h6 class="text-uppercase fw-bold mb-4">Contact</h6>
+          <p><i class="bi bi-signpost me-3"></i>Astana, AS 30060, KZ</p>
+          <p>
+            <i class="bi bi-envelope-at-fill me-3"></i>
+            blogpost@internet.ru
+          </p>
+          <p><i class="bi bi-telephone me-3"></i> + 77 234 567 88</p>
+          <p><i class="bi bi-telephone me-3"></i> + 77 234 567 89</p>
+        </div>
+        <!-- Grid column -->
+      </div>
+      <!-- Grid row -->
+    </div>
+  </section>
+  <!-- Section: Links  -->
+
+  <!-- Copyright -->
+  <div class="text-center p-4" style="background-color: rgba(0, 0, 0, 0.05);">
+    © 2023 Copyright:
+    <a class="text-reset fw-bold" href="{% url 'posts' %}">NixBlog.com</a>
+  </div>
+  <!-- Copyright -->
+</footer>
+</div>
+
+</div>
+
+<script src="{% static 'bootstrap-5/js/bootstrap.bundle.min.js' %}"></script>
 </body>
 </html>

@@ -9,12 +9,14 @@
     {% for message in messages %}
         <h1 style="color: red;">{{ message }}</h1>
     {% endfor %}
-    <form method="POST">
+    <div class="container mt-5 mb-5">
+        <form method="POST">
         {% csrf_token %}
-        <label for="update">Change comment:</label><br>
-        <textarea name="comment" id="update" cols="150" rows="10" required>
+        <label class="form-label fw-bold" for="update">Change comment:</label><br>
+            <textarea class="form-control" name="comment" id="update" cols="150" rows="10" required>
             {{ comment.comment }}
         </textarea><br>
-        <input type="submit" value="Update" >
+            <button class="bi bi-send-check-fill btn btn-outline-info" type="submit">Update</button>
     </form>
+    </div>
 {% endblock main %}

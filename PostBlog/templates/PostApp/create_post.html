@@ -9,14 +9,16 @@
     {% for message in messages %}
         <h1 style="color: red;">{{ message }}</h1>
     {% endfor %}
-    <form method="POST" enctype="multipart/form-data">
+    <div class="container text-center w-50 mt-5 mb-5">
+        <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
-        <label for="title">Title: </label>
-        <input type="text" id="title" name="title" required><br>
-        <label for="body">Text: </label>
-        <textarea name="body" id="body" cols="30" rows="10" required></textarea><br>
-        <label for="img">Upload post image</label>
-        <input type="file" id="img" name="image" accept=".png, .jpg, .jpeg" required>
-        <input type="submit" value="Post">
+        <label class="form-label" for="title">Title: </label>
+        <input class="form-control" type="text" id="title" name="title" required><br>
+        <label class="form-label" for="body">Text: </label>
+        <textarea class="form-control" name="body" id="body" cols="30" rows="10" required></textarea><br>
+        <label class="form-label" for="img">Upload a post image</label>
+        <input class="form-control" type="file" id="img" name="image" accept=".png, .jpg, .jpeg" required>
+            <button class="btn btn-outline-info bi bi-send-plus-fill mt-5 w-50" type="submit">Post</button>
     </form>
+    </div>
 {% endblock main %}

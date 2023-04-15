@@ -6,74 +6,89 @@
 {% endblock title %}
 
 {% block main %}
-    <div style="display: flex;">
-        <img style="max-height: 100px; max-width: 100px; border: none; border-radius: 50px; min-width: 100px; min-height: 100px" src="{{ author.profile_img.url }}" alt="">
+    <div class="m-3">
+        <div class="container-fluid">
         <div>
-             <h1>{{ author.nickname }}</h1>
-            <h3>Joined: {{ author.user.date_joined }}</h3>
+            <img style="max-height: 100px; max-width: 100px; border: none; border-radius: 50px; min-width: 100px; min-height: 100px" src="{{ author.profile_img.url }}" alt="">
+            <div>
+                 <h1>{{ author.nickname }}</h1>
+                <p class="fs-5">Joined: {{ author.user.date_joined }}</p>
+            </div>
         </div>
-    </div>
-    <div>
-        <span>
-            <button onclick="window.location.href = '{% url 'user_followers' author.nickname %}'">followers</button>
-            <button onclick="window.location.href = '{% url 'user_followings' author.nickname %}'">followings</button>
-            {% if followed %}
-                    <button onclick="window.location.href = '{% url 'to_follow_user' author.pk %}'">Unfollow</button>
-            {% else %}
-                <button onclick="window.location.href = '{% url 'to_follow_user' author.pk %}'">Follow</button>
-            {% endif %}
-        </span>
-    </div>
-            <h1 style="text-align: center;">{{ author.nickname }}'s posts</h1>
-    {% for post in page_obj %}
-        <h1>
-            <a href="{% url 'post' post.slug %}">
-                {{ post.title }}
-            </a>
-        </h1>
-        <img style="display: block; max-block-size: 300px;" src="{{ post.image.url }}" alt="">
-        <p>{{ post.body|truncatechars:50 }}</p>
-        <p>Published: {{ post.created_date }}</p>
-        <p>
-            <a href="{% url 'likes_list' post.slug %}">{% count_likes post.slug %} likes</a>
-            |
-            <a href="{% url 'post' post.slug %}">{% count_comments post.slug %} comments</a>
-        </p>
-        {% if request.user.is_authenticated %}
-            {% post_like post.pk as like %}
-            {% if like %}
-                {% if like.is_liked %}
-                    <button style="background-color: red" onclick="window.location.href = '{% url 'create_like' post.slug %}'">Like</button>
+        <div>
+                 <button style="color: #0dcaf0" class="btn" onclick="window.location.href = '{% url 'my_followers' %}'">followers</button>
+                <button style="color: #0dcaf0" class="btn" onclick="window.location.href = '{% url 'my_followings'%}'">followings</button>
+                {% if followed %}
+                        <button class="btn bi bi-backspace-fill" onclick="window.location.href = '{% url 'to_follow_user' author.pk %}'">Unfollow</button>
                 {% else %}
-                    <button onclick="window.location.href = '{% url 'create_like' post.slug %}'">Like</button>
+                    <button class="btn  bi bi-patch-check" onclick="window.location.href = '{% url 'to_follow_user' author.pk %}'">Follow</button>
                 {% endif %}
-            {% else %}
-                <button onclick="window.location.href = '{% url 'create_like' post.slug %}'">Like</button>
-            {% endif %}
+        </div>
 
-            {% else %}
-                <button onclick="window.location.href = '{% url 'login'%}'">Like</button>
-        {% endif %}
-    {% endfor %}
+       </div>
+    <h3 class="text-center mb-5 text-success">{{ author.nickname }}'s posts</h3>
+        <div class="container-fluid">
+            <div class="row">
+                {% for post in page_obj %}
+                <div class=" col-md-4 card border-0">
+                    <h3>
+                        <a style="color: cadetblue;" class="text-decoration-none" href="{% url 'post' post.slug %}">
+                            {{ post.title }}
+                        </a>
+                    </h3>
+                    <img src="{{ post.image.url }}" alt="">
+                    <p class="fs-5">{{ post.body|truncatewords:50}}</p>
+                    {% if request.user == post.author %}
+                        <a style="color: #c4113a" class="text-decoration-none fs-5 bi bi-people" href="{% url 'profile' %}">
+                            {{ post.author.profile.nickname }}
+                        </a>
+                    {% else %}
+                        <a style="color: #c4113a" class="text-decoration-none fs-5 bi bi-people" href="{% url 'user_posts' post.author.profile.nickname %}">
+                            {{ post.author.profile.nickname }}
+                        </a>
+                    {% endif %}
+                    <p class="card-text fs-5 bi bi-calendar4-event"> {{ post.created_date }}</p>
+                    <p>
+                        <a style="color: #c4113a" class="text-decoration-none bi bi-person-heart" href="{% url 'likes_list' post.slug %}"> {% count_likes post.slug %} likes</a>
+                        |
+                        <a style="color: #c4113a" class="text-decoration-none bi bi-chat-left" href="{% url 'post' post.slug %}"> {% count_comments post.slug %} comments</a>
+                    </p>
+                {% if request.user.is_authenticated %}
+                    {% post_like post.pk as like %}
+                    {% if like %}
+                        {% if like.is_liked %}
+                            <button class="bi bi-heartbreak btn btn-danger w-25" onclick="window.location.href = '{% url 'create_like' post.slug %}'">Like</button>
+                        {% else %}
+                            <button class="bi bi-heart-fill btn btn-outline-success w-25" onclick="window.location.href = '{% url 'create_like' post.slug %}'">Like</button>
+                        {% endif %}
+                        {% else %}
+                        <button class="bi bi-heart-fill btn btn-outline-success w-25" onclick="window.location.href = '{% url 'create_like' post.slug %}'">Like</button>
+                        {% endif %}
 
+                        {% else %}
+                        <button class="bi bi-heart-fill btn btn-outline-success w-25" onclick="window.location.href = '{% url 'login'%}'">Like</button>
+                {% endif %}
+                </div>
+            {% endfor %}
+            </div>
+        </div>
     <hr>
 
-    <div>
-    <span>
+    <div class="d-flex justify-content-center">
+        <ul class="pagination">
         {% if page_obj.has_previous %}
-            <a href="?page=1">&laquo; first</a>
-            <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+            <a class="page-link bi bi-1-circle-fill" href="?page=1">&laquo;</a>
+            <li class="page-item">
+                <a class="page-link bi bi-caret-left-fill" href="?page={{ page_obj.previous_page_number }}" tabindex="-1">Previous</a>
+            </li>
         {% endif %}
-
-        <span>
-            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
-        </span>
 
         {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}">next</a>
-            <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+            <a class="page-link bi bi-caret-right-fill" href="?page={{ page_obj.next_page_number }}">next</a>
+            <a class="page-link bi-exclamation-lg" href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
         {% endif %}
-    </span>
-</div>
-
+            <a class="page-link disabled" href="#">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.</a>
+    </ul>
+    </div>
+    </div>
 {% endblock main %}

@@ -9,28 +9,30 @@
     {% for message in messages %}
         <h1 style="color: red;">{{ message }}</h1>
     {% endfor %}
-    <form method="POST" enctype="multipart/form-data">
+    <div class="container w-50">
+        <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
-        <label for="nickname">Nickname: </label>
-        <input type="text" name="nickname" id="nickname" value="{{ request.user.profile.nickname }}">
-         <input type="submit" value="update" name="for_nickname">
+        <label class="form-label" for="nickname">Nickname: </label>
+        <input class="form-control mb-3" type="text" name="nickname" id="nickname" value="{{ request.user.profile.nickname }}">
+            <button class="btn btn-outline-primary bi bi-file-text" type="submit" name="for_nickname">Change the nickname</button>
         <br>
-        <label for="email">Email: </label>
-        <input type="email" name="email" id="email" value="{{ request.user.profile.user.email }}">
-         <input type="submit" value="update" name="for_email">
+        <label class="form-label" for="email">Email: </label>
+        <input class="form-control mb-3" type="email" name="email" id="email" value="{{ request.user.email }}">
+         <button class="btn btn-outline-primary bi bi-envelope-plus-fill" type="submit" name="for_email">Change the email</button>
         <br>
-        <label for="image">New image: </label><br>
-        <a href="{{ request.user.profile.profile_img.url }}">Current profile image</a><br>
-        <input type="file" name="image" id="image">
-         <input type="submit" value="update" name="for_image">
+        <label class="form-label" for="image">New image: </label><br>
+        <p><a href="{{ request.user.profile.profile_img.url }}">Current profile image</a><br></p>
+        <input class="form-control mb-3" type="file" name="image" id="image">
+            <button class="btn btn-outline-primary bi bi-image-fill" type="submit" name="for_image">Update the profile image</button>
         <br>
-        <label for="about">You can write about yourself here: </label><br>
-        <textarea name="about" id="about" cols="150" rows="10">
+        <label class="form-label" for="about">You can write about yourself here: </label><br>
+        <textarea class="form-control" name="about" id="about" cols="150" rows="10">
             {% if request.user.profile.about %}
                 {{ request.user.profile.about }}
             {% endif %}
         </textarea><br>
-         <input type="submit" value="update" name="for_about">
+            <button class="btn btn-outline-primary bi bi-text-left" type="submit" name="for_about">Update status</button>
         <br>
     </form>
+    </div>
 {% endblock main %}

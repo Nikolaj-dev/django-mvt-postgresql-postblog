@@ -8,6 +8,9 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Post, PostLike, PostComment, Profile, Follower
 import logging
+from django.db.models import Q
+from django.core.mail import send_mail
+from django.conf import settings
 
 
 logger = logging.getLogger('main')
@@ -95,7 +98,7 @@ def create_profile(request: HttpRequest) -> HttpResponse:
 
 def all_posts(request: HttpRequest) -> HttpResponse:
     posts = Post.objects.all().order_by('title')
-    paginator = Paginator(posts, 3)
+    paginator = Paginator(posts, 9)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     context = {
@@ -287,7 +290,7 @@ def delete_comment(request: HttpRequest, pk: int) -> HttpResponse:
 
 @login_required
 def update_comment(request: HttpRequest, slug: str) -> HttpResponse:
-    get_comment = PostComment.objects.get(for_post__slug=slug)
+    get_comment = PostComment.objects.get(for_post__slug=slug, who_commented=request.user)
 
     if request.method == "POST":
         comment = request.POST['comment']
@@ -353,10 +356,11 @@ def update_profile(request: HttpRequest) -> HttpResponse:
                 get_profile.about = request.POST['about']
                 get_profile.save()
             if 'for_email' in request.POST:
-                get_profile.user.email = request.POST['email']
-                get_profile.save()
+                user_email = User.objects.get(username=request.user.username)
+                user_email.email = request.POST['email']
+                user_email.save()
             logger.info(f'{request.user} updated profile.')
-            return redirect('profile')
+            return redirect('update_profile')
         except Exception as error:
             logger.error(f'{request.user}:{error}')
             messages.add_message(
@@ -463,10 +467,67 @@ def to_follow_user(request: HttpRequest, pk: int) -> HttpResponse:
 @login_required
 def my_likes(request: HttpRequest) -> HttpResponse:
     likes = PostLike.objects.filter(
-        who_liked=request.user
-    )
+        who_liked=request.user,
+        is_liked=True,
+    ).order_by('for_post')
+    paginator = Paginator(likes, 9)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
     context = {
-        "likes": likes,
+        "likes": page_obj,
     }
     logger.info(f'{request.user} connected {request.path}')
     return render(request, 'my_likes.html', context=context)
+
+
+def search(request: HttpRequest) -> HttpResponse:
+    queryset = Post.objects.all()
+    query = request.GET.get('q')
+    if query:
+        queryset = queryset.filter(
+            Q(title__icontains=query) |
+            Q(author__profile__nickname__icontains=query)
+        ).distinct().order_by('title')
+
+    paginator = Paginator(queryset, 9)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    context = {
+        'page_obj': page_obj
+    }
+    logger.info(f'{request.user} searched <{query}>')
+    return render(request, 'search_bar.html', context)
+
+
+def about(request: HttpRequest) -> HttpResponse:
+    return render(request, 'about.html')
+
+
+def feedback(request: HttpRequest) -> HttpResponse:
+    if request.method == "POST":
+        message = request.POST['feedback']
+        if request.user.is_authenticated:
+            try:
+                send_mail(
+                    f"Feedback from {request.user.email}",
+                    str(message),
+                    str(settings.EMAIL_HOST_USER),
+                    [str(settings.FEEDBACK_EMAIL)],
+                )
+                logger.info(f"{request.user} sent a feedback!")
+                messages.success(
+                    request,
+                    "Thank you for your feedback!"
+                )
+            except Exception as error:
+                logger.error(f"{request.user}: {error}")
+                messages.error(
+                    request,
+                    "Server Internal Error!"
+                )
+                return redirect("feedback")
+        else:
+            messages.info(
+                request,
+                "Please login! If you can't enter, please contact our help-center blogpost@internet.ru")
+    return render(request, 'feedback.html')

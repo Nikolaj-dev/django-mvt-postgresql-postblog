@@ -7,26 +7,64 @@
 
 
 {% block main %}
-    {% for like in likes %}
+    <div class="container mt-3">
+        <div class="row">
+            {% for like in likes %}
 
-        {% if like.is_liked %}
-            <h1>
-                <a href="{% url 'post' like.for_post.slug %}">{{ like.for_post.title }}</a>
-            </h1>
-                 <img style="display:block; max-block-size: 300px;" src="{{ like.for_post.image.url }}" alt="">
-                     <p>{{ like.for_post.body|truncatechars:50}}</p>
-             {% if request.user == like.for_post.author %}
-                <a href="{% url 'profile' %}">
-                    Author: {{ like.for_post.author.profile.nickname }}
-                </a>
-            {% else %}
-            <a href="{% url 'user_posts' like.for_post.author.profile.nickname %}">
-                Author: {{ like.for_post.author.profile.nickname }}
-            </a>
-            {% endif %}
-                <p>Published: {{ like.for_post.created_date }}</p>
+                    <div class="col-md-4 card border-0 mb-3 ">
+                    <h3>
+                        <a style="color: cadetblue;" class="text-decoration-none" href="{% url 'post' like.for_post.slug %}">
+                            {{ like.for_post.title }}
+                        </a>
+                    </h3>
+                    <img src="{{ like.for_post.image.url }}" alt="">
+                    <p class="fs-5">{{ like.for_post.body|truncatewords:50}}</p>
+                    {% if request.user == like.for_post.author %}
+                        <a style="color: #c4113a" class="text-decoration-none fs-5 bi bi-people" href="{% url 'profile' %}">
+                            {{ like.for_post.author.profile.nickname }}
+                        </a>
+                    {% else %}
+                        <a style="color: #c4113a" class="text-decoration-none fs-5 bi bi-people" href="{% url 'user_posts' like.for_post.author.profile.nickname %}">
+                            {{ like.for_post.author.profile.nickname }}
+                        </a>
+                    {% endif %}
+                    <p class="card-text fs-5 bi bi-calendar4-event"> {{ like.for_post.created_date }}</p>
+                    {% if request.user.is_authenticated %}
+                    {% post_like like.for_post.pk as liked %}
+                    {% if liked %}
+                        {% if liked.is_liked %}
+                            <button class="bi bi-heartbreak btn btn-danger w-25" onclick="window.location.href = '{% url 'create_like' like.for_post.slug %}'">Like</button>
+                        {% else %}
+                            <button class="bi bi-heart-fill btn btn-outline-success w-25" onclick="window.location.href = '{% url 'create_like' like.for_post.slug %}'">Like</button>
+                        {% endif %}
+                        {% else %}
+                        <button class="bi bi-heart-fill btn btn-outline-success w-25" onclick="window.location.href = '{% url 'create_like' like.for_post.slug %}'">Like</button>
+                        {% endif %}
 
+                        {% else %}
+                        <button class="bi bi-heart-fill btn btn-outline-success w-25" onclick="window.location.href = '{% url 'login'%}'">Like</button>
+                {% endif %}
+                </div>
+
+
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-center">
+        <ul class="pagination">
+        {% if likes.has_previous %}
+            <a class="page-link bi bi-1-circle-fill" href="?page=1">&laquo;</a>
+            <li class="page-item">
+                <a class="page-link bi bi-caret-left-fill" href="?page={{ likes.previous_page_number }}" tabindex="-1">Previous</a>
+            </li>
         {% endif %}
-    {% endfor %}
 
+        {% if likes.has_next %}
+            <a class="page-link bi bi-caret-right-fill" href="?page={{ likes.next_page_number }}">next</a>
+            <a class="page-link bi bi-exclamation-lg" href="?page={{ likes.paginator.num_pages }}">last &raquo;</a>
+        {% endif %}
+            <a class="page-link disabled" href="#">Page {{ likes.number }} of {{ likes.paginator.num_pages }}.</a>
+    </ul>
+    </div>
 {% endblock %}

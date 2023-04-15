@@ -7,80 +7,88 @@
 {% endblock title %}
 
 {% block main %}
-        <h1>{{ post.title }}</h1>
-    <img style="display:block; max-block-size: 300px;" src="{{ post.image.url }}" alt="">
-        <p>{{ post.body }}</p>
+        <div class="card border-0 container w-50">
+            <h1 class="text-center">{{ post.title }}</h1>
+    <img src="{{ post.image.url }}" alt="">
+        <p>{{ post.body|linebreaks }}</p>
         {% if request.user == post.author %}
-                <a href="{% url 'profile' %}">
-                    Author: {{ post.author.profile.nickname }}
+                <a style="color: #c4113a" class="text-decoration-none fs-5 bi bi-people" href="{% url 'profile' %}">
+                    {{ post.author.profile.nickname }}
                 </a>
             {% else %}
-            <a href="{% url 'user_posts' post.author.profile.nickname %}">
-                Author: {{ post.author.profile.nickname }}
+            <a style="color: #c4113a" class="text-decoration-none fs-5 bi bi-people" href="{% url 'user_posts' post.author.profile.nickname %}">
+                {{ post.author.profile.nickname }}
             </a>
             {% endif %}
-        <p>Published: {{ post.created_date }}</p>
-    {% if request.user.username == post.author.username %}
-    <span>
-        <a href="{% url 'delete_post' post.pk %}">
-        Delete post
-    </a>
-    <a href="{% url 'update_post' post.slug %}">
-        Update post
-    </a>
-    </span>
-    {% endif %}
+        <p class="card-text fs-5 bi bi-calendar4-event"> {{ post.created_date }}</p>
         <p>
-           <a href="{% url 'likes_list' post.slug %}">{% count_likes post.slug %} likes</a>
+           <a style="color: #c4113a" class="text-decoration-none fs-5 bi bi-person-heart" href="{% url 'likes_list' post.slug %}"> {% count_likes post.slug %} likes</a>
         </p>
         {% if request.user.is_authenticated %}
             {% post_like post.pk as like %}
             {% if like %}
                 {% if like.is_liked %}
-                    <button style="background-color: red" onclick="window.location.href = '{% url 'create_like' post.slug %}'">Like</button>
+                    <button class="bi bi-heartbreak btn btn-danger w-25" onclick="window.location.href = '{% url 'create_like' post.slug %}'">Like</button>
                 {% else %}
-                    <button onclick="window.location.href = '{% url 'create_like' post.slug %}'">Like</button>
+                    <button class="bi bi-heart-fill btn btn-outline-success w-25" onclick="window.location.href = '{% url 'create_like' post.slug %}'">Like</button>
                 {% endif %}
             {% else %}
-                <button onclick="window.location.href = '{% url 'create_like' post.slug %}'">Like</button>
+                <button class="bi bi-heart-fill btn btn-outline-success w-25" onclick="window.location.href = '{% url 'create_like' post.slug %}'">Like</button>
             {% endif %}
 
             {% else %}
-                <button onclick="window.location.href = '{% url 'login'%}'">Like</button>
+                <button class="bi bi-heart-fill btn btn-outline-success w-25" onclick="window.location.href = '{% url 'login'%}'">Like</button>
         {% endif %}
-    <hr>
+        {% if request.user.username == post.author.username %}
+    <span class="m-2 justify-content-center d-flex">
+        <a class="bi bi-eraser-fill btn btn-outline-danger mx-1" href="{% url 'delete_post' post.pk %}">
+        Delete post
+    </a>
+    <a class="bi bi-pencil-square btn btn-outline-success" href="{% url 'update_post' post.slug %}">
+        Update post
+    </a>
+    </span>
+    {% endif %}
+
     {% for message in messages %}
         <h1 style="color: red;">{{ message }}</h1>
     {% endfor %}
     {% if request.user.is_authenticated %}
         <form method="POST">
             {% csrf_token %}
-            <label for="comment">Your comment:</label><br>
-            <textarea name="comment" id="comment" cols="150" rows="10" required></textarea><br>
-            <button type="submit">Send</button>
+            <label for="comment" class="fs-5">Your comment:</label><br>
+            <textarea class="form-control" name="comment" id="comment" required></textarea><br>
+            <button class="btn btn-outline-info bi bi-send" type="submit">Send</button>
         </form>
         {% else %}
-        <h1>Login or sign up to write comments!</h1>
+        <hr>
+        <h1 class="text-center m-3">Login or sign up to write comments!</h1>
+        <hr>
     {% endif %}
-    <hr>
-    {% all_comments post.pk as comments %}
+        </div>
+    <div class="container mt-3 mb-3">
+        {% all_comments post.pk as comments %}
     {% for comment in comments %}
-        <p>
+        <div class="bg-body-tertiary p-3">
+            <p>
             {% if request.user == comment.who_commented %}
-                <a href="{% url 'profile' %}">
+                <a style="color: #c4113a" class="text-decoration-none fs-5 bi bi-people" href="{% url 'profile' %}">
                     {{ comment.who_commented.profile.nickname }}
                 </a><br>
             {% else %}
-                <a href="{% url 'user_posts' comment.who_commented.profile.nickname %}">
+                <a style="color: #c4113a" class="text-decoration-none fs-5 bi bi-people" href="{% url 'user_posts' comment.who_commented.profile.nickname %}">
                 {{ comment.who_commented.profile.nickname }}
             </a><br>
             {% endif %}
-            {{ comment.comment }}<br>
+            <p class="fs-4">{{ comment.comment }}</p>
             {{ comment.created_time }}<br>
         </p>
         {% if request.user == comment.who_commented %}
-            <button name="delete" onclick="window.location.href = '{% url 'delete_comment' comment.pk %}'">Delete</button>
-            <button name="update" onclick="window.location.href = '{% url 'update_comment' comment.for_post.slug %}'">Update</button>
+            <button class="btn btn-danger bi bi-trash3" name="delete" onclick="window.location.href = '{% url 'delete_comment' comment.pk %}'">Delete</button>
+            <button class="btn btn-success bi bi-pencil-square" name="update" onclick="window.location.href = '{% url 'update_comment' comment.for_post.slug %}'">Update</button>
         {% endif %}
+        </div>
+        <hr>
     {% endfor %}
+    </div>
 {% endblock main %}

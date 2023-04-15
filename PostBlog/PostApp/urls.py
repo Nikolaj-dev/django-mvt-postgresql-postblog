@@ -30,4 +30,7 @@ urlpatterns = [
     path('posts/user-followings/<str:nickname>/', views.user_followings, name='user_followings'),
     path('posts/user/follow/<int:pk>/', views.to_follow_user, name='to_follow_user'),
     path('profile/my-likes/', views.my_likes, name='my_likes'),
+    path('search/', views.search, name='search'),
+    path('', views.about, name='about'),
+    path('feedback/', views.feedback, name="feedback"),
 ]

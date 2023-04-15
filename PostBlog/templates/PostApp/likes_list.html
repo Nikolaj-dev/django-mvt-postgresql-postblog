@@ -7,22 +7,24 @@
 
 
 {% block main %}
-    {% for like in likes %}
-        <ul>
+    <div class="container mt-3">
+        <div class="row">
+            {% for like in likes %}
             {% if like.is_liked %}
-                <div style="display: flex;">
-                    <img style="max-height: 50px; max-width: 50px; border: none; border-radius: 25px; min-width: 50px; min-height: 50px" src="{{ like.who_liked.profile.profile_img.url }}" alt="">
+                <div class="col-md-2 text-center">
+                    <img class="rounded-circle" style="max-width: 100px; max-height: 100px" src="{{ like.who_liked.profile.profile_img.url }}" alt=""><br>
                     {% if request.user == like.who_liked %}
-                        <a href="{% url 'profile' %}">
+                        <a style="color: #c4113a" class="text-decoration-none fs-5" href="{% url 'profile' %}">
                             {{ like.who_liked.profile.nickname }}
                         </a>
                         {% else %}
-                         <a href="{% url 'user_posts' like.who_liked.profile.nickname %}">
+                         <a style="color: #c4113a" class="text-decoration-none fs-5" href="{% url 'user_posts' like.who_liked.profile.nickname %}">
                         {{ like.who_liked.profile.nickname }}
                     </a>
                     {% endif %}
                 </div>
             {% endif %}
-        </ul>
     {% endfor %}
+        </div>
+    </div>
 {% endblock %}

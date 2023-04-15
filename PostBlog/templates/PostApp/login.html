@@ -11,12 +11,15 @@
 {% for message in messages %}
         <h1 style="color: red;">{{ message }}</h1>
 {% endfor %}
-
-    <form method="POST">
+    <div class="container text-center w-50 border rounded-5 p-5 mt-3">
+        <form method="POST">
         {% csrf_token %}
-        <label for="username">Username:</label><input type="text" id="username" name="username" required>
-        <label for="password">Password:</label><input type="password" id="password" name="password" required>
-        <input type="submit" value="Login">
+        <label class="form-label" for="username">Username:</label>
+            <input class="form-control" type="text" id="username" name="username" required>
+        <label class="form-label" for="password">Password:</label>
+            <input class="form-control" type="password" id="password" name="password" required>
+            <button class="bi bi-person-check-fill btn btn-outline-success w-25 mt-5 mb-5" type="submit">Login</button>
     </form>
-       <p>Forgot your password? <a href="{% url 'password_reset' %}">Reset</a></p>
+       <p>Forgot your password? <a style="color: #c4113a" class="text-decoration-none fs-5" href="{% url 'password_reset' %}">Reset</a></p>
+    </div>
 {% endblock main %}

@@ -115,7 +115,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
-STATIC_ROOT = 'static'
+STATICFILES_DIRS = [
+    'static'
+]
 MEDIA_URL = 'media/'
 MEDIA_ROOT = 'external_static/media'
 
@@ -134,6 +136,7 @@ EMAIL_HOST_USER = env('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 EMAIL_PORT = env('EMAIL_PORT')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+FEEDBACK_EMAIL = env('FEEDBACK_EMAIL')
 
 CACHES = {
     'default': {

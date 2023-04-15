@@ -7,14 +7,22 @@
 
 
 {% block main %}
+    <div class="container mt-5 mb-5">
+    <div class="row">
     {% for follower in followers %}
-        <div style="display: flex">
-            <img style="max-height: 50px; max-width: 50px; border: none; border-radius: 25px; min-width: 50px; min-height: 50px" src="{{ follower.who_follow.profile_img.url }}" alt="">
+        <div class="text-center col-md-2">
+            <div>
+            <img class="rounded-circle" style="max-width: 100px; max-height: 100px" src="{{ follower.who_follow.profile_img.url }}" alt="">
+        </div>
+        <div>
                 {% if follower.who_follow == request.user.profile %}
-                    <a href="{% url 'profile' %}">{{ follower.who_follow.nickname }}</a>
+                    <a style="color: #c4113a" class="text-decoration-none fs-5" href="{% url 'profile' %}">{{ follower.who_follow.nickname }}</a>
                 {% else %}
-                    <a href="{% url 'user_posts' follower.who_follow.nickname %}">{{ follower.who_follow.nickname }}</a>
+                    <a style="color: #c4113a" class="text-decoration-none fs-5" href="{% url 'user_posts' follower.who_follow.nickname %}">{{ follower.who_follow.nickname }}</a>
                 {% endif %}
         </div>
+        </div>
     {% endfor %}
+    </div>
+    </div>
 {% endblock %}

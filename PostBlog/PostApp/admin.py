@@ -5,7 +5,6 @@ from .models import Post, PostLike, PostComment, Profile, Follower
 class PostAdmin(admin.ModelAdmin):
     list_display = (
         'title',
-        'body',
         'created_date',
         'image',
         'author',

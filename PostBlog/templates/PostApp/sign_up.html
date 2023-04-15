@@ -9,27 +9,29 @@
     {% for message in messages %}
         <h1 style="color: red;">{{ message }}</h1>
     {% endfor %}
-    <form method="POST" enctype="multipart/form-data">
+    <div class="container text-center w-50 border rounded-5 p-5 mt-3">
+        <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
-        <label for="username">Login:</label><br>
-        <input id="username" type="text" name="username" required><br>
+        <label class="form-label" for="username">Login:</label><br>
+        <input class="form-control" id="username" type="text" name="username" required><br>
 
-        <label for="email">Email:</label><br>
-        <input type="email" id="email" name="email" required><br>
+        <label class="form-label" for="email">Email:</label><br>
+        <input class="form-control" type="email" id="email" name="email" required><br>
 
-        <label for="password1">Password:</label><br>
-        <input id="password1" type="password" name="password1" required><br>
+        <label class="form-label" for="password1">Password:</label><br>
+        <input class="form-control" id="password1" type="password" name="password1" required><br>
 
-        <label for="password2">Repeat the password:</label><br>
-        <input id="password2" type="password" name="password2" required><br>
+        <label class="form-label" for="password2">Repeat the password:</label><br>
+        <input class="form-control" id="password2" type="password" name="password2" required><br>
 
-        <label for="image">Profile image:</label><br>
-        <input id="image" type="file" name="image" required><br>
+        <label class="form-label" for="image">Profile image:</label><br>
+        <input class="form-control" id="image" type="file" name="image" required><br>
 
-        <label for="nickname">Nickname:</label><br>
-        <input id="nickname" type="text" name="nickname" required><br>
+        <label class="form-label" for="nickname">Nickname:</label><br>
+        <input class="form-control" id="nickname" type="text" name="nickname" required><br>
 
-
-        <input type="submit" value="Sign Up">
+        <button class="bi bi-person-plus-fill btn btn-outline-success w-25 mt-5 mb-5" type="submit">Sign Up</button>
     </form>
+        <p>Already have an account? <a style="color: #c4113a" class="text-decoration-none fs-5" href="{% url 'login' %}">Login</a></p>
+    </div>
 {% endblock main %}

@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+
+{% block title %}
+    Send a feedback!
+{% endblock %}
+
+
+{% block main %}
+    <div class="container text-center w-50 border rounded-5 p-5 mt-3">
+    <h1 class="text-success">If you have any complaints or ideas on how to improve our website, please leave us a feedback!</h1>
+        <form method="POST">
+        {% csrf_token %}
+        <label class="form-label" for="fb">Feedback:</label><br>
+            <textarea class="form-control " id="fb" name="feedback"></textarea><br>
+        <button class="bi bi-send-fill btn btn-outline-success w-25 mt-5 mb-5" type="submit">Send</button>
+            {% for message in messages %}
+            <p class="fs-3">
+                {{ message }}
+            </p>
+    {% endfor %}
+    </form>
+    </div>
+    {{ text }}
+{% endblock %}

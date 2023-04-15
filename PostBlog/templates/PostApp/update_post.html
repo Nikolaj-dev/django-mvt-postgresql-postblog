@@ -6,18 +6,23 @@
 {% endblock title %}
 
 {% block main %}
-    <a href="{% url 'post' slug %}">Back to the post</a>
-    <form method="POST" enctype="multipart/form-data">
+
+    <div class="container text-center">
+    <a class="btn btn-outline-primary bi bi-arrow-return-left" href="{% url 'post' slug %}">Back to the post</a>
+        <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
-        <label for="title">Title: </label><br>
-        <input type="text" id="title" name="title" value="{{ title_value }}"><br>
-        <input type="submit" value="Update" name="for_title"><br>
-        <label for="body">Text: </label><br>
-        <textarea name="body" id="body" cols="30" rows="10">{{ body_value }}</textarea><br>
-        <input type="submit" value="Update" name="for_body"><br>
-        <label for="img">Upload post image</label>
-        <input type="file" id="img" name="image" value="{{ img_value.url }}"><br>
-        <a href="{{ img_value.url }}">Current image: {{ img_value }}</a><br>
-        <input type="submit" value="Update" name="for_image">
+        <label class="form-label" for="title">Title: </label><br>
+        <input class="form-control" type="text" id="title" name="title" value="{{ title_value }}"><br>
+        <button class="btn btn-outline-primary bi bi-file-richtext-fill" type="submit" name="for_title">Update the post title</button><br>
+        <label class="form-label" for="body">Text: </label><br>
+        <textarea class="form-control" name="body" id="body" cols="30" rows="10">{{ body_value }}</textarea><br>
+            <button class="btn btn-outline-primary bi bi-file-earmark-plus" type="submit" name="for_body">Update the content</button><br>
+        <label class="form-label" for="img">Upload a new post image: </label><br>
+            <p>
+                <a href="{{ img_value.url }}">Current post image</a><br>
+            </p>
+        <input class="form-control" type="file" id="img" name="image" value="{{ img_value.url }}"><br>
+            <button class="btn btn-outline-primary bi bi-cloud-plus" type="submit" name="for_image">Update the image</button>
     </form>
+    </div>
 {% endblock main %}
