@@ -51,7 +51,7 @@
     {% endif %}
 
     {% for message in messages %}
-        <h1 style="color: red;">{{ message }}</h1>
+        <h1 class="text-danger text-center">{{ message }}</h1>
     {% endfor %}
     {% if request.user.is_authenticated %}
         <form method="POST">

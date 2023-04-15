@@ -7,7 +7,7 @@
 
 {% block main %}
     {% for message in messages %}
-        <h1 style="color: red;">{{ message }}</h1>
+        <h1 class="text-danger text-center">{{ message }}</h1>
     {% endfor %}
     <div class="container text-center w-50 border rounded-5 p-5 mt-3">
         <form method="POST" enctype="multipart/form-data">

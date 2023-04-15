@@ -65,12 +65,18 @@ class PostLike(models.Model):
     for_post = models.ForeignKey(Post, on_delete=models.CASCADE)
     is_liked = models.BooleanField(default=True)
 
+    def __str__(self):
+        return str(f"{self.who_liked} liked {self.for_post}")
+
 
 class PostComment(models.Model):
     who_commented = models.ForeignKey(User, on_delete=models.CASCADE)
     for_post = models.ForeignKey(Post, on_delete=models.CASCADE)
     comment = models.TextField(max_length=5000)
     created_time = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return str(f"{self.who_commented} commented {self.for_post}")
 
 
 class Profile(models.Model):

@@ -6,7 +6,9 @@
 {% endblock title %}
 
 {% block main %}
-
+    {% for message in messages %}
+    <h1 class="text-danger text-center">{{ message }}</h1>
+    {% endfor%}
     <div class="container text-center">
     <a class="btn btn-outline-primary bi bi-arrow-return-left" href="{% url 'post' slug %}">Back to the post</a>
         <form method="POST" enctype="multipart/form-data">

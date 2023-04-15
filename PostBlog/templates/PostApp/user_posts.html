@@ -16,7 +16,7 @@
             </div>
         </div>
         <div>
-                 <button style="color: #0dcaf0" class="btn" onclick="window.location.href = '{% url 'my_followers' %}'">followers</button>
+            <button style="color: #0dcaf0" class="btn" onclick="window.location.href = '{% url 'my_followers' %}'">followers</button>
                 <button style="color: #0dcaf0" class="btn" onclick="window.location.href = '{% url 'my_followings'%}'">followings</button>
                 {% if followed %}
                         <button class="btn bi bi-backspace-fill" onclick="window.location.href = '{% url 'to_follow_user' author.pk %}'">Unfollow</button>
@@ -24,7 +24,6 @@
                     <button class="btn  bi bi-patch-check" onclick="window.location.href = '{% url 'to_follow_user' author.pk %}'">Follow</button>
                 {% endif %}
         </div>
-
        </div>
     <h3 class="text-center mb-5 text-success">{{ author.nickname }}'s posts</h3>
         <div class="container-fluid">

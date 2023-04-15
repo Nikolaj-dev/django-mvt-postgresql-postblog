@@ -1,2 +1,4 @@
 # django-mvt-sqlite-postblog
- Simple django-mvt post app with authentication system.
+ Django-mvt postplog app with authentication system(registration, login, password reset),
+ profile/followers/like/comments/feedback functionality.
+ Bootstrap + custom css.
