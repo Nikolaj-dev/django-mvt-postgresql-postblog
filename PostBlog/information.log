@@ -1,0 +1,7 @@
+{"message": "AnonymousUser connected /posts/", "timestamp": "2023-04-16T15:01:28.982808Z", "level": "INFO"}
+{"message": "admin signed up.", "timestamp": "2023-04-16T15:02:09.498789Z", "level": "INFO"}
+{"message": "admin connected /posts/", "timestamp": "2023-04-16T15:02:09.544201Z", "level": "INFO"}
+{"message": "admin sent a feedback!", "timestamp": "2023-04-16T15:02:23.156540Z", "level": "INFO"}
+{"message": "admin connected /profile/", "timestamp": "2023-04-16T15:02:59.427110Z", "level": "INFO"}
+{"message": "admin connected /posts/", "timestamp": "2023-04-16T15:03:03.282975Z", "level": "INFO"}
+{"message": "admin connected /profile/", "timestamp": "2023-04-16T15:03:04.585618Z", "level": "INFO"}
