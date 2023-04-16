@@ -1,11 +1,7 @@
 from pathlib import Path
-import environ
 import os
 from pythonjsonlogger.jsonlogger import JsonFormatter
 from .logging_formatters import CustomJsonFormatter
-
-env = environ.Env()
-env.read_env()
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -16,12 +12,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env('SECRET_KEY')
+SECRET_KEY = os.environ['SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env.bool('DEBUG', default=False)
+DEBUG = os.environ['DEBUG']
 
-ALLOWED_HOSTS = [env('ALLOWED_HOSTS')]
+ALLOWED_HOSTS = [os.environ['ALLOWED_HOSTS']]
 
 
 # Application definition
@@ -129,18 +125,22 @@ LOGOUT_REDIRECT_URL = 'posts'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
-EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS', default=True)
-EMAIL_HOST = env('EMAIL_HOST')
-EMAIL_HOST_USER = env('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
-EMAIL_PORT = env('EMAIL_PORT')
+CSRF_COOKIE_SECURE = os.environ['CSRF_COOKIE_SECURE']
+
+CSRF_TRUSTED_ORIGINS = ['https://django-server-production-7818.up.railway.app']
+
+EMAIL_USE_TLS = os.environ['EMAIL_USE_TLS']
+EMAIL_HOST = os.environ['EMAIL_HOST']
+EMAIL_HOST_USER = os.environ['EMAIL_HOST_USER']
+EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
+EMAIL_PORT = os.environ['EMAIL_PORT']
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-FEEDBACK_EMAIL = env('FEEDBACK_EMAIL')
+FEEDBACK_EMAIL = os.environ['FEEDBACK_EMAIL']
 
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': os.path.join(BASE_DIR / env('DEFAULT_CACHE')),
+        'LOCATION': os.path.join(BASE_DIR / os.environ['DEFAULT_CACHE']),
         'TIMEOUT': 60,
         'OPTIONS': {
             'MAX_ENTRIES': 1000
@@ -148,7 +148,7 @@ CACHES = {
     },
     'redis_cache': {
         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': env('REDIS_LOCATION')
+        'LOCATION': os.environ['REDIS_LOCATION']
     }
 }
 
