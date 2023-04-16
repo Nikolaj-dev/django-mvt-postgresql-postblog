@@ -127,7 +127,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 CSRF_COOKIE_SECURE = os.environ['CSRF_COOKIE_SECURE']
 
-CSRF_TRUSTED_ORIGINS = ['https://nixblog.up.railway.app/']
+CSRF_TRUSTED_ORIGINS = ['django-mvt-sqlite-postblog-production.up.railway.app']
 
 EMAIL_USE_TLS = os.environ['EMAIL_USE_TLS']
 EMAIL_HOST = os.environ['EMAIL_HOST']
