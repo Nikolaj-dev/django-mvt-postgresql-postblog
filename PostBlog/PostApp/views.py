@@ -11,6 +11,7 @@ import logging
 from django.db.models import Q
 from django.core.mail import send_mail
 from django.conf import settings
+from django.core.cache import cache
 
 
 logger = logging.getLogger('main')

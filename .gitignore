@@ -52,6 +52,7 @@ coverage.xml
 
 # Django stuff:
 *.log
+**/*.log
 local_settings.py
 
 # Flask stuff:
@@ -181,4 +182,4 @@ fabric.properties
 .idea/caches/build_file_checksums.ser
 
 # idea folder, uncomment if you don't need it
-# .idea
+.idea

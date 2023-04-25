@@ -1,23 +1,27 @@
 from pathlib import Path
-import os
-from pythonjsonlogger.jsonlogger import JsonFormatter
 from .logging_formatters import CustomJsonFormatter
+import environ
+import os
 
+env = environ.Env(
+    DEBUG=(bool, False)
+)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ['SECRET_KEY']
+SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ['DEBUG']
+DEBUG = env.bool('DEBUG')
 
-ALLOWED_HOSTS = [os.environ['ALLOWED_HOSTS']]
+ALLOWED_HOSTS = [env('ALLOWED_HOSTS')]
 
 
 # Application definition
@@ -99,7 +103,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'Asia/Almaty'
+TIME_ZONE = env('TIME_ZONE')
 
 USE_I18N = True
 
@@ -119,28 +123,28 @@ MEDIA_ROOT = 'external_static/media'
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = env('DEFAULT_AUTO_FIELD')
 
 LOGOUT_REDIRECT_URL = 'posts'
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = env('EMAIL_BACKEND')
 
-CSRF_COOKIE_SECURE = os.environ['CSRF_COOKIE_SECURE']
+CSRF_COOKIE_SECURE = env.bool('CSRF_COOKIE_SECURE')
 
-CSRF_TRUSTED_ORIGINS = ['django-mvt-sqlite-postblog-production.up.railway.app']
 
-EMAIL_USE_TLS = os.environ['EMAIL_USE_TLS']
-EMAIL_HOST = os.environ['EMAIL_HOST']
-EMAIL_HOST_USER = os.environ['EMAIL_HOST_USER']
-EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
-EMAIL_PORT = os.environ['EMAIL_PORT']
+EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS')
+EMAIL_HOST = env('EMAIL_HOST')
+EMAIL_HOST_U# CSRF_TRUSTED_ORIGINS = env('CSRF_TRUSTED_ORIGINS')
+SER = env('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+EMAIL_PORT = env('EMAIL_PORT')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-FEEDBACK_EMAIL = os.environ['FEEDBACK_EMAIL']
+FEEDBACK_EMAIL = env('FEEDBACK_EMAIL')
 
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': os.path.join(BASE_DIR / os.environ['DEFAULT_CACHE']),
+        'LOCATION': os.path.join(BASE_DIR / env('DEFAULT_CACHE')),
         'TIMEOUT': 60,
         'OPTIONS': {
             'MAX_ENTRIES': 1000
@@ -148,14 +152,13 @@ CACHES = {
     },
     'redis_cache': {
         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': os.environ['REDIS_LOCATION']
+        'LOCATION': env('REDIS_LOCATION')
     }
 }
 
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
-
     'formatters': {
         'main_format': {
             "format": "{asctime} - {levelname} - {module} - {filename} - {message}",
