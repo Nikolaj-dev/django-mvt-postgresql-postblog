@@ -98,7 +98,10 @@ def create_profile(request: HttpRequest) -> HttpResponse:
 
 
 def all_posts(request: HttpRequest) -> HttpResponse:
-    posts = Post.objects.all().order_by('title')
+    posts = cache.get("all_posts")
+    if not posts:
+        posts = Post.objects.all().order_by('title')
+        cache.set("all_posts", posts, timeout=50)
     paginator = Paginator(posts, 9)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -111,7 +114,10 @@ def all_posts(request: HttpRequest) -> HttpResponse:
 
 def detailed_post(request: HttpRequest, slug: str) -> HttpResponse:
     logger.info(f'{request.user} connected {request.path}')
-    post = get_object_or_404(Post, slug=slug)
+    post = cache.get("detailed_post %s" % (str(slug),))
+    if not post:
+        post = get_object_or_404(Post, slug=slug)
+        cache.set("detailed_post %s" % (str(slug),), post, timeout=10)
     context = {
         "post": post,
     }
@@ -226,7 +232,10 @@ def delete_post(request: HttpRequest, pk: int) -> HttpResponse:
 @login_required
 def user_posts(request: HttpRequest, author: str) -> HttpResponse:
     logger.info(f'{request.user} connected {request.path}')
-    posts = Post.objects.filter(author__profile__nickname=author).order_by('title')
+    posts = cache.get("%s's posts" % (str(author),))
+    if not posts:
+        posts = Post.objects.filter(author__profile__nickname=author).order_by('title')
+        cache.set("%s's posts" % (str(author),), posts, timeout=10)
     author = Profile.objects.get(nickname=author)
     followed = Follower.objects.filter(
         who_followed=author,
@@ -246,7 +255,10 @@ def user_posts(request: HttpRequest, author: str) -> HttpResponse:
 def all_likes(request: HttpRequest, slug: int) -> HttpResponse:
     logger.info(f'{request.user} connected {request.path}')
     post = get_object_or_404(Post, slug=slug)
-    likes = PostLike.objects.filter(for_post_id=post.id)
+    likes = cache.get("%s's likes" % (str(slug),))
+    if not likes:
+        likes = PostLike.objects.filter(for_post_id=post.id)
+        cache.set("%s's likes" % (str(slug),), likes, timeout=5)
     context = {
         "likes": likes,
     }
@@ -292,7 +304,6 @@ def delete_comment(request: HttpRequest, pk: int) -> HttpResponse:
 @login_required
 def update_comment(request: HttpRequest, slug: str) -> HttpResponse:
     get_comment = PostComment.objects.get(for_post__slug=slug, who_commented=request.user)
-
     if request.method == "POST":
         comment = request.POST['comment']
         if str(comment).strip() == '':
@@ -323,7 +334,10 @@ def detailed_profile(request: HttpRequest) -> HttpResponse:
         logger.error(f'User {request.user} got error: {error}')
         return redirect('posts')
 
-    posts = Post.objects.filter(author__profile=profile).order_by('title')
+    posts = cache.get("%s's profile posts" % (str(request.user.profile.nickname),))
+    if not posts:
+        posts = Post.objects.filter(author__profile=profile).order_by('title')
+        cache.set("%s's profile posts" % (str(request.user.profile.nickname),), posts, timeout=10)
     paginator = Paginator(posts, 3)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -398,7 +412,10 @@ def change_password(request: HttpRequest) -> HttpResponse:
 
 
 def my_followers(request: HttpRequest) -> HttpResponse:
-    followers = Follower.objects.all().filter(who_followed__nickname=request.user.profile.nickname)
+    followers = cache.get("%s's followers" % (str(request.user.profile.nickname),))
+    if not followers:
+        followers = Follower.objects.all().filter(who_followed__nickname=request.user.profile.nickname)
+        cache.set("%s's followers" % (str(request.user.profile.nickname),), followers, timeout=10)
     context = {
         "followers": followers,
     }
@@ -407,7 +424,10 @@ def my_followers(request: HttpRequest) -> HttpResponse:
 
 
 def my_followings(request: HttpRequest) -> HttpResponse:
-    followings = Follower.objects.all().filter(who_follow__nickname=request.user.profile.nickname)
+    followings = cache.get("%s's followings" % (str(request.user.profile.nickname),))
+    if not followings:
+        followings = Follower.objects.all().filter(who_follow__nickname=request.user.profile.nickname)
+        cache.set("%s's followings" % (str(request.user.profile.nickname),), followings, timeout=10)
     context = {
         "followings": followings,
     }
@@ -416,7 +436,10 @@ def my_followings(request: HttpRequest) -> HttpResponse:
 
 
 def user_followers(request: HttpRequest, nickname: str) -> HttpResponse:
-    followers = Follower.objects.all().filter(who_followed__nickname=nickname)
+    followers = cache.get("%s's followers" % (str(nickname),))
+    if not followers:
+        followers = Follower.objects.all().filter(who_followed__nickname=nickname)
+        cache.set("%s's followers" % (str(nickname),), followers, timeout=10)
     context = {
         "followers": followers,
     }
@@ -425,7 +448,10 @@ def user_followers(request: HttpRequest, nickname: str) -> HttpResponse:
 
 
 def user_followings(request: HttpRequest, nickname) -> HttpResponse:
-    followings = Follower.objects.all().filter(who_follow__nickname=nickname)
+    followings = cache.get("%s's followings" % (str(nickname),))
+    if not followings:
+        followings = Follower.objects.all().filter(who_follow__nickname=nickname)
+        cache.set("%s's followings" % (str(nickname),), followings, timeout=10)
     context = {
         "followings": followings,
     }
@@ -467,10 +493,13 @@ def to_follow_user(request: HttpRequest, pk: int) -> HttpResponse:
 
 @login_required
 def my_likes(request: HttpRequest) -> HttpResponse:
-    likes = PostLike.objects.filter(
-        who_liked=request.user,
-        is_liked=True,
-    ).order_by('for_post')
+    likes = cache.get("%s's likes" % (str(request.user.profile.nickname),))
+    if not likes:
+        likes = PostLike.objects.filter(
+            who_liked=request.user,
+            is_liked=True,
+        ).order_by('for_post')
+        cache.set("%s's likes" % (str(request.user.profile.nickname),), likes, timeout=5)
     paginator = Paginator(likes, 9)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -489,7 +518,6 @@ def search(request: HttpRequest) -> HttpResponse:
             Q(title__icontains=query) |
             Q(author__profile__nickname__icontains=query)
         ).distinct().order_by('title')
-
     paginator = Paginator(queryset, 9)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)

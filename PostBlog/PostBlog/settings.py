@@ -131,29 +131,34 @@ EMAIL_BACKEND = env('EMAIL_BACKEND')
 
 CSRF_COOKIE_SECURE = env.bool('CSRF_COOKIE_SECURE')
 
+# CSRF_TRUSTED_ORIGINS = env('CSRF_TRUSTED_ORIGINS')
 
 EMAIL_USE_TLS = env.bool('EMAIL_USE_TLS')
 EMAIL_HOST = env('EMAIL_HOST')
-EMAIL_HOST_U# CSRF_TRUSTED_ORIGINS = env('CSRF_TRUSTED_ORIGINS')
-SER = env('EMAIL_HOST_USER')
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 EMAIL_PORT = env('EMAIL_PORT')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 FEEDBACK_EMAIL = env('FEEDBACK_EMAIL')
 
 CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': os.path.join(BASE_DIR / env('DEFAULT_CACHE')),
-        'TIMEOUT': 60,
-        'OPTIONS': {
-            'MAX_ENTRIES': 1000
-        }
-    },
-    'redis_cache': {
-        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': env('REDIS_LOCATION')
-    }
+        'default': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': env('REDIS_LOCATION'),
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            },
+            'KEY_PREFIX': 'blogpost_',
+            'TIMEOUT': 60,
+        },
+        'file': {
+            'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+            'LOCATION': os.path.join(BASE_DIR / env('FILE_CACHE')),
+            'TIMEOUT': 60,
+            'OPTIONS': {
+                'MAX_ENTRIES': 1000
+            }
+        },
 }
 
 LOGGING = {
