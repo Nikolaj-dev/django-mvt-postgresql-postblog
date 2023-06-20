@@ -1,4 +1,5 @@
 from django import template
+from django.utils.text import Truncator
 
 from ..models import Post, PostLike, PostComment
 
@@ -42,3 +43,9 @@ def all_comments(post_id):
         for_post=post,
     ).order_by('-created_time')
     return comments
+
+
+@register.filter
+def cut_sentences(value, num_sentences):
+    truncator = Truncator(value)
+    return truncator.words(num_sentences, truncate=' ...')
