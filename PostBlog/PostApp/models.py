@@ -1,5 +1,5 @@
 import os
-
+from PIL import Image
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import pre_delete, pre_save
@@ -87,6 +87,17 @@ class Profile(models.Model):
 
     def __str__(self):
         return str(self.nickname)
+
+    def save(
+        self, force_insert=False, force_update=False, using=None, update_fields=None
+    ):
+        super().save()
+        img = Image.open(self.profile_img.path)  # Open image using self
+
+        if img.height > 480 or img.width > 480:
+            new_img = (480, 480)
+            img.thumbnail(new_img)
+            img.save(self.profile_img.path)  # saving image at the same path
 
 
 @receiver(pre_delete, sender=Profile)

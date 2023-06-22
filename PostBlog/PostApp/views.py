@@ -86,7 +86,7 @@ def create_profile(request: HttpRequest) -> HttpResponse:
                 messages.add_message(
                     request,
                     messages.ERROR,
-                    'Passwords are not equal!')
+                    'Passwords are not equal or contain less than 8 letters!')
                 return redirect('sign_up')
         except Exception:
             messages.add_message(
