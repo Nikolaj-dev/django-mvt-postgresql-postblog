@@ -1,6 +1,7 @@
 from django import template
+from django.shortcuts import get_object_or_404
 from django.utils.text import Truncator
-
+from django.core.cache import cache
 from ..models import Post, PostLike, PostComment
 
 register = template.Library()
@@ -19,7 +20,10 @@ def post_like(context, post_id):
 
 @register.simple_tag()
 def count_comments(slug: str) -> int:
-    post = Post.objects.get(slug=slug)
+    post = cache.get("detailed_post %s" % (str(slug),))
+    if not post:
+        post = get_object_or_404(Post, slug=slug)
+        cache.set("detailed_post %s" % (str(slug),), post, timeout=15)
     comments = PostComment.objects.filter(
         for_post=post,
     ).count()
@@ -28,7 +32,10 @@ def count_comments(slug: str) -> int:
 
 @register.simple_tag()
 def count_likes(slug: int) -> int:
-    post = Post.objects.get(slug=slug)
+    post = cache.get("detailed_post %s" % (str(slug),))
+    if not post:
+        post = get_object_or_404(Post, slug=slug)
+        cache.set("detailed_post %s" % (str(slug),), post, timeout=15)
     likes = PostLike.objects.filter(
         for_post=post,
         is_liked=True,

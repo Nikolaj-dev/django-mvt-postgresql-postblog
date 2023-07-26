@@ -9,7 +9,9 @@
     <div class="m-3">
         <div class="container-fluid">
         <div>
-            <img style="max-height: 100px; max-width: 100px; border: none; border-radius: 50px; min-width: 100px; min-height: 100px" src="{{ author.profile_img.url }}" alt="">
+            <a href="{{ author.profile_img.url }}">
+                <img style="max-height: 100px; max-width: 100px; border: none; border-radius: 50px; min-width: 100px; min-height: 100px" src="{{ author.profile_img.url }}" alt="">
+            </a>
             <div>
                  <h1>{{ author.nickname }}</h1>
                 <p class="fs-5">Joined: {{ author.user.date_joined }}</p>

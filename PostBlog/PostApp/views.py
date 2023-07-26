@@ -44,7 +44,7 @@ def login_(request: HttpRequest) -> HttpResponse:
     return render(request, 'login.html')
 
 
-def create_profile(request: HttpRequest) -> HttpResponse:
+def sign_up(request: HttpRequest) -> HttpResponse:
     if request.method == "POST":
         try:
             username = request.POST['username']
@@ -101,7 +101,7 @@ def all_posts(request: HttpRequest) -> HttpResponse:
     posts = cache.get("all_posts")
     if not posts:
         posts = Post.objects.all().order_by('title')
-        cache.set("all_posts", posts, timeout=50)
+        cache.set("all_posts", posts, timeout=15)
     paginator = Paginator(posts, 9)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -117,7 +117,7 @@ def detailed_post(request: HttpRequest, slug: str) -> HttpResponse:
     post = cache.get("detailed_post %s" % (str(slug),))
     if not post:
         post = get_object_or_404(Post, slug=slug)
-        cache.set("detailed_post %s" % (str(slug),), post, timeout=10)
+        cache.set("detailed_post %s" % (str(slug),), post, timeout=15)
     context = {
         "post": post,
     }
@@ -137,7 +137,7 @@ def detailed_post(request: HttpRequest, slug: str) -> HttpResponse:
                     for_post_id=post.id,
                     comment=comment,
                 )
-                logger.info(f'{request.user} left comment for {post.title}')
+                logger.info(f'{request.user} left a comment for {post.title}')
             except Exception as error:
                 logger.error(f'{request.user}:{error}')
                 messages.add_message(
@@ -198,20 +198,22 @@ def update_post(request: HttpRequest, slug: str) -> HttpResponse:
             "slug": slug,
         }
         if request.method == "POST":
-            if 'for_title' in request.POST:
+            if 'title' in request.POST:
                 title = request.POST['title']
                 post.title = title
                 if str(title).strip() != '':
                     post.save()
-            elif 'for_body' in request.POST:
+                    logger.info(f'{request.user} updated the title in {post.title}')
+            if 'body' in request.POST:
                 body = request.POST['body']
                 post.body = body
                 if str(body).strip() != '':
                     post.save()
-            elif 'for_image' in request.POST:
+                    logger.info(f'{request.user} updated the body in {post.title}')
+            if 'image' in request.FILES:
                 post.image = request.FILES['image']
                 post.save()
-            logger.info(f'{request.user} updated post {post.title}')
+                logger.info(f'{request.user} updated the image {post.title}')
             return redirect('update_post', slug=slug)
     else:
         return HttpResponse("Method not allowed!")
@@ -252,6 +254,7 @@ def user_posts(request: HttpRequest, author: str) -> HttpResponse:
     return render(request, 'user_posts.html', context=context)
 
 
+@login_required
 def all_likes(request: HttpRequest, slug: int) -> HttpResponse:
     logger.info(f'{request.user} connected {request.path}')
     post = get_object_or_404(Post, slug=slug)
@@ -291,6 +294,25 @@ def create_like(request: HttpRequest, slug: str) -> HttpResponse:
             messages.add_message(request, messages.ERROR, 'Internal Server Error')
     logger.info(f'{request.user} connected {request.path}')
     return redirect(request.META.get('HTTP_REFERER', None))
+
+
+# def like_view(request):
+#     if request.method == 'POST':
+#         liked_post_id = request.POST.get('liked_post_id')
+#         liked_post = Post.objects.get(id=liked_post_id)
+#         liked, created = PostLike.objects.get_or_create(who_liked=request.user, for_post=liked_post)
+#         if liked.is_liked:
+#             liked.is_liked = False
+#             liked.save()
+#             logger.info(f'{request.user} disliked {liked.title}')
+#         else:
+#             liked.is_liked = True
+#             liked.save()
+#             logger.info(f'{request.user} liked {liked.title}')
+#         if not created:
+#             liked.delete()
+#
+#         return redirect(request.META.get('HTTP_REFERER', None))
 
 
 @login_required
@@ -411,6 +433,7 @@ def change_password(request: HttpRequest) -> HttpResponse:
     return render(request, 'change_user_password.html', context=context)
 
 
+@login_required
 def my_followers(request: HttpRequest) -> HttpResponse:
     followers = cache.get("%s's followers" % (str(request.user.profile.nickname),))
     if not followers:
@@ -423,6 +446,7 @@ def my_followers(request: HttpRequest) -> HttpResponse:
     return render(request, 'followers.html', context=context)
 
 
+@login_required
 def my_followings(request: HttpRequest) -> HttpResponse:
     followings = cache.get("%s's followings" % (str(request.user.profile.nickname),))
     if not followings:
@@ -435,6 +459,7 @@ def my_followings(request: HttpRequest) -> HttpResponse:
     return render(request, 'followings.html', context=context)
 
 
+@login_required
 def user_followers(request: HttpRequest, nickname: str) -> HttpResponse:
     followers = cache.get("%s's followers" % (str(nickname),))
     if not followers:
@@ -447,6 +472,7 @@ def user_followers(request: HttpRequest, nickname: str) -> HttpResponse:
     return render(request, 'followers.html', context=context)
 
 
+@login_required
 def user_followings(request: HttpRequest, nickname) -> HttpResponse:
     followings = cache.get("%s's followings" % (str(nickname),))
     if not followings:
