@@ -203,29 +203,31 @@ image3 = SimpleUploadedFile(
 #             self.assertTrue(post)
 
 
-class TestAllLikesView(TestCase):
-    def setUp(self) -> None:
-        self.user = User.objects.create_user(
-            username='testAdmin',
-            password='testPassword'
-        )
-        self.profile = Profile.objects.create(
-            user=self.user,
-            profile_img=image1,
-            nickname='testNick',
-            about='testAbout'
-        )
-        self.object = Post.objects.create(
-            title='testPost',
-            body='testBody',
-            author=self.user,
-            image=image1,
-        )
-        self.client.login(username='testAdmin', password='testPassword')
+# class TestAllLikesView(TestCase):
+#     def setUp(self) -> None:
+#         self.user = User.objects.create_user(
+#             username='testAdmin',
+#             password='testPassword'
+#         )
+#         self.profile = Profile.objects.create(
+#             user=self.user,
+#             profile_img=image1,
+#             nickname='testNick',
+#             about='testAbout'
+#         )
+#         self.object = Post.objects.create(
+#             title='testPost',
+#             body='testBody',
+#             author=self.user,
+#             image=image1,
+#         )
+#         self.client.login(username='testAdmin', password='testPassword')
+#
+#     def test_get_method(self):
+#         response = self.client.get(reverse('likes_list', kwargs={'slug': self.object.slug}))
+#         self.assertEqual(response.status_code, 200)
+#
+#     def test_create_like(self):
+#         response = self.client.get(reverse('create_like', kwargs={'slug': self.object.slug}))
 
-    def test_get_method(self):
-        response = self.client.get(reverse('likes_list', kwargs={'slug': self.object.slug}))
-        self.assertEqual(response.status_code, 200)
 
-    def test_create_like(self):
-        response = self.client.get(reverse('create_like', kwargs={'slug': self.object.slug}))

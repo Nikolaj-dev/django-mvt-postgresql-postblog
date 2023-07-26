@@ -296,25 +296,6 @@ def create_like(request: HttpRequest, slug: str) -> HttpResponse:
     return redirect(request.META.get('HTTP_REFERER', None))
 
 
-# def like_view(request):
-#     if request.method == 'POST':
-#         liked_post_id = request.POST.get('liked_post_id')
-#         liked_post = Post.objects.get(id=liked_post_id)
-#         liked, created = PostLike.objects.get_or_create(who_liked=request.user, for_post=liked_post)
-#         if liked.is_liked:
-#             liked.is_liked = False
-#             liked.save()
-#             logger.info(f'{request.user} disliked {liked.title}')
-#         else:
-#             liked.is_liked = True
-#             liked.save()
-#             logger.info(f'{request.user} liked {liked.title}')
-#         if not created:
-#             liked.delete()
-#
-#         return redirect(request.META.get('HTTP_REFERER', None))
-
-
 @login_required
 def delete_comment(request: HttpRequest, pk: int) -> HttpResponse:
     comment = get_object_or_404(PostComment, pk=pk)
