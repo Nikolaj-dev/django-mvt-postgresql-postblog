@@ -18,8 +18,8 @@
             </div>
         </div>
         <div>
-            <button style="color: #0dcaf0" class="btn" onclick="window.location.href = '{% url 'my_followers' %}'">followers</button>
-                <button style="color: #0dcaf0" class="btn" onclick="window.location.href = '{% url 'my_followings'%}'">followings</button>
+            <button style="color: #0dcaf0" class="btn" onclick="window.location.href = '{% url 'user_followers' author.nickname %}'">followers</button>
+                <button style="color: #0dcaf0" class="btn" onclick="window.location.href = '{% url 'user_followings' author.nickname %}'">followings</button>
                 {% if followed %}
                         <button class="btn bi bi-backspace-fill" onclick="window.location.href = '{% url 'to_follow_user' author.pk %}'">Unfollow</button>
                 {% else %}

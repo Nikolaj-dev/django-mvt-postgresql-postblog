@@ -3,7 +3,7 @@ from django.contrib.auth import login, authenticate, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
-from django.http import HttpResponse, HttpRequest
+from django.http import HttpResponse, HttpRequest, Http404
 from django.contrib.auth.forms import PasswordChangeForm
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Post, PostLike, PostComment, Profile, Follower
@@ -12,6 +12,7 @@ from django.db.models import Q
 from django.core.mail import send_mail
 from django.conf import settings
 from django.core.cache import cache
+from django.urls import reverse
 
 
 logger = logging.getLogger('main')
@@ -256,8 +257,8 @@ def user_posts(request: HttpRequest, author: str) -> HttpResponse:
 
 @login_required
 def all_likes(request: HttpRequest, slug: int) -> HttpResponse:
-    logger.info(f'{request.user} connected {request.path}')
     post = get_object_or_404(Post, slug=slug)
+    logger.info(f'{request.user} connected {request.path}')
     likes = cache.get("%s's likes" % (str(slug),))
     if not likes:
         likes = PostLike.objects.filter(for_post_id=post.id)
@@ -293,7 +294,11 @@ def create_like(request: HttpRequest, slug: str) -> HttpResponse:
             logger.error(f'{request.user}: {error}')
             messages.add_message(request, messages.ERROR, 'Internal Server Error')
     logger.info(f'{request.user} connected {request.path}')
-    return redirect(request.META.get('HTTP_REFERER', None))
+    referer = request.META.get('HTTP_REFERER', None)
+    if referer:
+        return redirect(referer)
+    else:
+        return redirect(reverse('post', kwargs={'slug': slug}))
 
 
 @login_required
@@ -301,7 +306,11 @@ def delete_comment(request: HttpRequest, pk: int) -> HttpResponse:
     comment = get_object_or_404(PostComment, pk=pk)
     comment.delete()
     logger.info(f'{request.user} deleted comment for {comment.for_post.title}')
-    return redirect(request.META.get('HTTP_REFERER', None))
+    referer = request.META.get('HTTP_REFERER', None)
+    if referer:
+        return redirect(referer)
+    else:
+        return redirect(reverse('posts'))
 
 
 @login_required
@@ -442,28 +451,35 @@ def my_followings(request: HttpRequest) -> HttpResponse:
 
 @login_required
 def user_followers(request: HttpRequest, nickname: str) -> HttpResponse:
-    followers = cache.get("%s's followers" % (str(nickname),))
-    if not followers:
-        followers = Follower.objects.all().filter(who_followed__nickname=nickname)
-        cache.set("%s's followers" % (str(nickname),), followers, timeout=10)
-    context = {
-        "followers": followers,
-    }
-    logger.info(f'{request.user} connected {request.path}.')
-    return render(request, 'followers.html', context=context)
-
+    profile = Profile.objects.filter(nickname=nickname)
+    if profile:
+        followers = cache.get("%s's followers" % (str(nickname),))
+        if not followers:
+            followers = Follower.objects.all().filter(who_followed__nickname=nickname)
+            cache.set("%s's followers" % (str(nickname),), followers, timeout=10)
+        context = {
+            "followers": followers,
+        }
+        logger.info(f'{request.user} connected {request.path}.')
+        return render(request, 'followers.html', context=context)
+    else:
+        raise Http404
 
 @login_required
 def user_followings(request: HttpRequest, nickname) -> HttpResponse:
-    followings = cache.get("%s's followings" % (str(nickname),))
-    if not followings:
-        followings = Follower.objects.all().filter(who_follow__nickname=nickname)
-        cache.set("%s's followings" % (str(nickname),), followings, timeout=10)
-    context = {
-        "followings": followings,
-    }
-    logger.info(f'{request.user} connected {request.path}.')
-    return render(request, 'followings.html', context=context)
+    profile = Profile.objects.filter(nickname=nickname)
+    if profile:
+        followings = cache.get("%s's followings" % (str(nickname),))
+        if not followings:
+            followings = Follower.objects.all().filter(who_follow__nickname=nickname)
+            cache.set("%s's followings" % (str(nickname),), followings, timeout=10)
+        context = {
+            "followings": followings,
+        }
+        logger.info(f'{request.user} connected {request.path}.')
+        return render(request, 'followings.html', context=context)
+    else:
+        raise Http404
 
 
 @login_required
@@ -495,7 +511,11 @@ def to_follow_user(request: HttpRequest, pk: int) -> HttpResponse:
             logger.error(f'{request.user}: {error}')
             messages.add_message(request, messages.ERROR, 'Internal Server Error')
     logger.info(f'{request.user} connected {request.path}')
-    return redirect(request.META.get('HTTP_REFERER', None))
+    referer = request.META.get('HTTP_REFERER', None)
+    if referer:
+        return redirect(referer)
+    else:
+        return redirect(reverse('posts'))
 
 
 @login_required
@@ -542,28 +562,36 @@ def about(request: HttpRequest) -> HttpResponse:
 def feedback(request: HttpRequest) -> HttpResponse:
     if request.method == "POST":
         message = request.POST['feedback']
-        if request.user.is_authenticated:
-            try:
-                send_mail(
-                    f"Feedback from {request.user.email}",
-                    str(message),
-                    str(settings.EMAIL_HOST_USER),
-                    [str(settings.FEEDBACK_EMAIL)],
-                )
-                logger.info(f"{request.user} sent a feedback!")
-                messages.success(
+        if str(message).strip() != '':
+            if request.user.is_authenticated:
+                try:
+                    send_mail(
+                        f"Feedback from {request.user.email}",
+                        str(message),
+                        str(settings.EMAIL_HOST_USER),
+                        [str(settings.FEEDBACK_EMAIL)],
+                    )
+                    logger.info(f"{request.user} sent a feedback!")
+                    messages.success(
+                        request,
+                        "Thank you for your feedback!"
+                    )
+                except Exception as error:
+                    logger.error(f"{request.user}: {error}")
+                    messages.error(
+                        request,
+                        "Server Internal Error!"
+                    )
+                    return redirect("feedback")
+            else:
+                messages.info(
                     request,
-                    "Thank you for your feedback!"
-                )
-            except Exception as error:
-                logger.error(f"{request.user}: {error}")
-                messages.error(
-                    request,
-                    "Server Internal Error!"
-                )
-                return redirect("feedback")
+                    "Please login! If you can't enter, please contact our help-center blogpost@internet.ru")
+                return redirect('feedback')
         else:
             messages.info(
                 request,
-                "Please login! If you can't enter, please contact our help-center blogpost@internet.ru")
+                "All fields must be field!"
+            )
+            return redirect('feedback')
     return render(request, 'feedback.html')
