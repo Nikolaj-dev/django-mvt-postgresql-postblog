@@ -8,31 +8,10 @@ from django.urls import reverse
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-image1 = SimpleUploadedFile(
-    name='lake.jpg',
-    content=open(os.path.join(BASE_DIR, 'static/test_pics/lake.jpg'), 'rb').read(),
-    content_type='image/jpeg'
-)
-image2 = SimpleUploadedFile(
-    name='ocean.jpeg',
-    content=open(os.path.join(BASE_DIR, 'static/test_pics/ocean.jpeg'), 'rb').read(),
-    content_type='image/jpeg'
-)
-image3 = SimpleUploadedFile(
-    name='tree.jpg',
-    content=open(os.path.join(BASE_DIR, 'static/test_pics/tree.jpg'), 'rb').read(),
-    content_type='image/jpeg'
-)
-
-image4 = SimpleUploadedFile(
-    name='munt.jpg',
-    content=open(os.path.join(BASE_DIR, 'static/test_pics/munt.jpg'), 'rb').read(),
-    content_type='image/jpeg'
-)
 
 
 class LoginViewTest(TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.username = 'testUser'
         self.password = 'testPass'
         self.user = User.objects.create_user(
@@ -58,6 +37,14 @@ class LoginViewTest(TestCase):
 
 
 class SignUpViewTest(TestCase):
+    def setUp(self) -> None:
+        self.image1 = SimpleUploadedFile(
+            name='lake.jpg',
+            content=open(os.path.join(BASE_DIR, 'static/test_pics/lake.jpg'),
+                         'rb').read(),
+            content_type='image/jpeg'
+        )
+
     def test_signup_view_with_valid_credentials(self):
         response = self.client.post(
             reverse('sign_up'),
@@ -65,7 +52,7 @@ class SignUpViewTest(TestCase):
                 'username': 'testUser',
                 'password1': 'testPass',
                 'password2': 'testPass',
-                'image': image4,
+                'image': self.image1,
                 'nickname': 'testNickname',
                 'email': 'testEmail@gmail.com',
             }
@@ -81,7 +68,7 @@ class SignUpViewTest(TestCase):
                 'username': 'wrongTestUser',
                 'password1': 'testPass1',
                 'password2': 'testPass2',
-                'image': image1,
+                'image': self.image1,
                 'nickname': 'wrongTestNickname',
                 'email': 'wrongTestEmail@gmail.com',
             }
@@ -98,7 +85,20 @@ class AllPostsViewTest(TestCase):
 
 
 class DetailedPostViewsCRUDTest(TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
+        self.image1 = SimpleUploadedFile(
+            name='lake.jpg',
+            content=open(os.path.join(BASE_DIR, 'static/test_pics/lake.jpg'),
+                         'rb').read(),
+            content_type='image/jpeg'
+        )
+
+        self.image2 = SimpleUploadedFile(
+            name='ocean.jpeg',
+            content=open(os.path.join(BASE_DIR, 'static/test_pics/ocean.jpeg'), 'rb').read(),
+            content_type='image/jpeg'
+        )
+
         self.user = User.objects.create_user(
             username='testAdmin',
             password='testPassword'
@@ -107,13 +107,13 @@ class DetailedPostViewsCRUDTest(TestCase):
             title='testPost1',
             body='testBody',
             author=self.user,
-            image=image1,
+            image=self.image1,
         )
         self.post_for_posting = Post.objects.create(
             title='testPost2',
             body='testBody',
             author=self.user,
-            image=image2,
+            image=self.image2,
         )
 
         self.post_for_getting_url = reverse('post', kwargs={'slug': self.post_for_getting.slug})
@@ -140,12 +140,16 @@ class DetailedPostViewsCRUDTest(TestCase):
 
     # updating the comment for the post
     def test_valid_update_method(self):
-        response = self.client.post(path=reverse('update_post', kwargs={'slug': self.post_for_getting.slug}), data={'title': 'newTestPost'})
+        response = self.client.post(
+            path=reverse('update_post', kwargs={'slug': self.post_for_getting.slug}),
+            data={'title': 'newTestPost'})
         self.assertEqual(response.status_code, 302)
         self.assertTrue(Post.objects.get(title='newTestPost'))
 
     def test_invalid_update_method(self):
-        response = self.client.post(path=reverse('update_post', kwargs={'slug': self.post_for_getting.slug}), data={'title': ' '})
+        response = self.client.post(
+            path=reverse('update_post', kwargs={'slug': self.post_for_getting.slug}),
+            data={'title': ' '})
         self.assertEqual(response.status_code, 302)
         self.assertFalse(Post.objects.filter(title=' '))
 
@@ -154,7 +158,7 @@ class DetailedPostViewsCRUDTest(TestCase):
         response = self.client.post(path=reverse('create_post'),
                                     data={'title': 'newTestPost1',
                                           'body': 'testBody',
-                                          'image': image1
+                                          'image': self.image1
                                           }
                                     )
         self.assertTrue(Post.objects.get(title='newTestPost1'))
@@ -164,7 +168,7 @@ class DetailedPostViewsCRUDTest(TestCase):
         response = self.client.post(path=reverse('create_post'),
                                     data={'title': ' ',
                                           'body': '123',
-                                          'image': image2
+                                          'image': self.image2
                                           }
                                     )
         self.assertFalse(Post.objects.filter(body='123'))
@@ -183,13 +187,27 @@ class DetailedPostViewsCRUDTest(TestCase):
 
 class TestUserPostsView(TestCase):
     def setUp(self) -> None:
+        self.image1 = SimpleUploadedFile(
+            name='lake.jpg',
+            content=open(os.path.join(BASE_DIR, 'static/test_pics/lake.jpg'),
+                         'rb').read(),
+            content_type='image/jpeg'
+        )
+
+        self.image2 = SimpleUploadedFile(
+            name='ocean.jpeg',
+            content=open(os.path.join(BASE_DIR, 'static/test_pics/ocean.jpeg'),
+                         'rb').read(),
+            content_type='image/jpeg'
+        )
+
         self.user = User.objects.create_user(
             username='testAdmin',
             password='testPassword'
         )
         self.profile = Profile.objects.create(
             user=self.user,
-            profile_img=image1,
+            profile_img=self.image1,
             nickname='testNick',
             about='testAbout'
         )
@@ -197,7 +215,7 @@ class TestUserPostsView(TestCase):
             title='testPost',
             body='testBody',
             author=self.user,
-            image=image1,
+            image=self.image2,
         )
         self.client.login(username='testAdmin', password='testPassword')
 
@@ -211,13 +229,27 @@ class TestUserPostsView(TestCase):
 
 class TestAllLikesView(TestCase):
     def setUp(self) -> None:
+        self.image1 = SimpleUploadedFile(
+            name='lake.jpg',
+            content=open(os.path.join(BASE_DIR, 'static/test_pics/lake.jpg'),
+                         'rb').read(),
+            content_type='image/jpeg'
+        )
+
+        self.image2 = SimpleUploadedFile(
+            name='ocean.jpeg',
+            content=open(os.path.join(BASE_DIR, 'static/test_pics/ocean.jpeg'),
+                         'rb').read(),
+            content_type='image/jpeg'
+        )
+
         self.user = User.objects.create_user(
             username='testAdmin',
             password='testPassword'
         )
         self.profile = Profile.objects.create(
             user=self.user,
-            profile_img=image1,
+            profile_img=self.image1,
             nickname='testNick',
             about='testAbout'
         )
@@ -225,7 +257,7 @@ class TestAllLikesView(TestCase):
             title='testPost',
             body='testBody',
             author=self.user,
-            image=image1,
+            image=self.image2,
         )
         self.client.login(username='testAdmin', password='testPassword')
 
@@ -252,6 +284,20 @@ class TestAllLikesView(TestCase):
 
 class CommentViewsTest(TestCase):
     def setUp(self) -> None:
+        self.image1 = SimpleUploadedFile(
+            name='lake.jpg',
+            content=open(os.path.join(BASE_DIR, 'static/test_pics/lake.jpg'),
+                         'rb').read(),
+            content_type='image/jpeg'
+        )
+
+        self.image2 = SimpleUploadedFile(
+            name='ocean.jpeg',
+            content=open(os.path.join(BASE_DIR, 'static/test_pics/ocean.jpeg'),
+                         'rb').read(),
+            content_type='image/jpeg'
+        )
+
         self.user = User.objects.create_user(
             username='testUser',
             password='testPass',
@@ -265,7 +311,7 @@ class CommentViewsTest(TestCase):
         self.post = Post.objects.create(
             title='testtitle',
             body='testBody',
-            image=image1,
+            image=self.image1,
             author=self.user,
         )
 
@@ -326,13 +372,27 @@ class CommentViewsTest(TestCase):
 
 class DetailedProfileViewTest(TestCase):
     def setUp(self) -> None:
+        self.image1 = SimpleUploadedFile(
+            name='lake.jpg',
+            content=open(os.path.join(BASE_DIR, 'static/test_pics/lake.jpg'),
+                         'rb').read(),
+            content_type='image/jpeg'
+        )
+
+        self.image2 = SimpleUploadedFile(
+            name='ocean.jpeg',
+            content=open(os.path.join(BASE_DIR, 'static/test_pics/ocean.jpeg'),
+                         'rb').read(),
+            content_type='image/jpeg'
+        )
+
         self.user = User.objects.create_user(
             username='testUser',
             password='testPass',
         )
         self.profile = Profile.objects.create(
             user=self.user,
-            profile_img=image1,
+            profile_img=self.image1,
             nickname='testNickname',
             about='testAbout',
         )
@@ -356,7 +416,7 @@ class DetailedProfileViewTest(TestCase):
         response = self.client.post(
             reverse('update_profile'),
             data={'for_nickname': True, 'nickname': 'newNickname',
-                  'for_image': True, 'image': image3,
+                  'for_image': True, 'image': self.image2,
                   'for_about': True, 'about': 'newAbout',
                   'for_email': True, 'email': 'newEmail@gmail.com',
                   }
@@ -367,7 +427,7 @@ class DetailedProfileViewTest(TestCase):
             user__email='newEmail@gmail.com'
         )
         self.assertTrue(profile)
-        self.assertTrue('tree' in profile.profile_img.name)
+        self.assertTrue('ocean' in profile.profile_img.name)
         self.assertEqual(response.status_code, 302)
 
     def test_profile_invalid_update_method(self):
@@ -389,7 +449,7 @@ class DetailedProfileViewTest(TestCase):
 
 
 class UserPasswordChangeTestCase(TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.user = User.objects.create_user(
             username='testuser',
             password='testpassword'
@@ -417,6 +477,20 @@ class UserPasswordChangeTestCase(TestCase):
 
 class FollowersFollowingsLikesFeedbackViewsTest(TestCase):
     def setUp(self) -> None:
+        self.image1 = SimpleUploadedFile(
+            name='lake.jpg',
+            content=open(os.path.join(BASE_DIR, 'static/test_pics/lake.jpg'),
+                         'rb').read(),
+            content_type='image/jpeg'
+        )
+
+        self.image2 = SimpleUploadedFile(
+            name='ocean.jpeg',
+            content=open(os.path.join(BASE_DIR, 'static/test_pics/ocean.jpeg'),
+                         'rb').read(),
+            content_type='image/jpeg'
+        )
+
         self.user = User.objects.create_user(
                     username='testuser',
                     password='testpassword'
@@ -424,7 +498,7 @@ class FollowersFollowingsLikesFeedbackViewsTest(TestCase):
         self.profile = Profile.objects.create(
             about='about',
             nickname='nickname',
-            profile_img=image3,
+            profile_img=self.image1,
             user=self.user,
         )
         self.client.login(
@@ -438,7 +512,7 @@ class FollowersFollowingsLikesFeedbackViewsTest(TestCase):
         )
         self.another_profile = Profile.objects.create(
             user=self.another_user,
-            profile_img=image1,
+            profile_img=self.image2,
             nickname='anotheruser',
             about='about',
         )
