@@ -127,4 +127,3 @@ class Follower(models.Model):
 
     def __str__(self):
         return str(f'{self.who_follow} following {self.who_followed}')
-

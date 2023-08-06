@@ -2,8 +2,11 @@ from django.contrib import messages
 from django.contrib.auth import login, authenticate, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
-from django.http import HttpResponse, HttpRequest, Http404
+from django.core.validators import validate_email
+from django.http import HttpResponse, HttpRequest, Http404, HttpResponseForbidden
 from django.contrib.auth.forms import PasswordChangeForm
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Post, PostLike, PostComment, Profile, Follower
@@ -45,57 +48,57 @@ def login_(request: HttpRequest) -> HttpResponse:
     return render(request, 'login.html')
 
 
-def sign_up(request: HttpRequest) -> HttpResponse:
+def sign_up(request):
     if request.method == "POST":
-        try:
-            username = request.POST['username']
-            password1 = request.POST['password1']
-            password2 = request.POST['password2']
-            profile_image = request.FILES['image']
-            nickname = request.POST['nickname']
-            email = request.POST['email']
-            if password1 == password2:
+        username = request.POST.get('username')
+        password1 = request.POST.get('password1')
+        password2 = request.POST.get('password2')
+        email = request.POST.get('email')
+        nickname = request.POST.get('nickname')
+        profile_image = request.FILES.get('image')
+
+        if all([username, password1, password2, email, nickname, profile_image]):
+            if password1 == password2 and len(password1) >= 8:
                 try:
-                    User.objects.create_user(
+                    # Validate the password against AUTH_PASSWORD_VALIDATORS
+                    validate_password(password1, user=User)
+                except ValidationError as error:
+                    # Log password validation error
+                    logger.warning(f'Password validation failed for user {username}: {error.messages}')
+                    messages.error(request, '\n'.join(error.messages))
+                    return redirect('sign_up')
+
+                try:
+                    user = User.objects.create_user(
                         username=username,
                         password=password1,
                         email=email,
                     )
-                    user_instance = User.objects.get(
-                        username=username,
-                    )
-                    Profile.objects.create(
-                        user=user_instance,
-                        profile_img=profile_image,
-                        nickname=nickname,
-                    )
-                except Exception as error:
-                    logger.error(f'{request.user}:{error}')
-                    messages.add_message(
-                        request,
-                        messages.ERROR,
-                        'User already exists!')
-                    return redirect('sign_up')
-                user = authenticate(request, username=username, password=password1)
-                if user is not None:
-                    login(request, user)
-                    logger.info(f'{user} signed up.')
+                    profile = Profile(user=user, profile_img=profile_image, nickname=nickname)
+                    profile.save()
+
+                    # Automatically log in the user after successful sign-up
+                    user = authenticate(request, username=username, password=password1)
+                    if user is not None:
+                        login(request, user)
+
+                    # Log successful sign-up
+                    logger.info(f'User {username} signed up successfully.')
+                    messages.success(request, 'You have successfully signed up!')
                     return redirect('posts')
-                else:
+                except Exception as error:
+                    # Log user creation error
+                    logger.exception(f'Error creating user {username}: {error}')
+                    messages.error(request, 'User already exists!')
                     return redirect('sign_up')
             else:
-                messages.add_message(
-                    request,
-                    messages.ERROR,
-                    'Passwords are not equal or contain less than 8 letters!')
+                messages.error(request, 'Passwords are not equal or contain less than 8 letters!')
                 return redirect('sign_up')
-        except Exception:
-            messages.add_message(
-                request,
-                messages.ERROR,
-                'All fields must be set!')
+        else:
+            messages.error(request, 'All fields must be set!')
             return redirect('sign_up')
-    return render(request, 'sign_up.html')
+    else:
+        return render(request, 'sign_up.html')
 
 
 def all_posts(request: HttpRequest) -> HttpResponse:
@@ -256,7 +259,7 @@ def user_posts(request: HttpRequest, author: str) -> HttpResponse:
 
 
 @login_required
-def all_likes(request: HttpRequest, slug: int) -> HttpResponse:
+def all_likes(request: HttpRequest, slug: str) -> HttpResponse:
     post = get_object_or_404(Post, slug=slug)
     logger.info(f'{request.user} connected {request.path}')
     likes = cache.get("%s's likes" % (str(slug),))
@@ -275,25 +278,19 @@ def create_like(request: HttpRequest, slug: str) -> HttpResponse:
     user = request.user
     try:
         like = PostLike.objects.get(for_post=post, who_liked=user)
-        if like.is_liked:
-            like.is_liked = False
-            like.save()
-            logger.info(f'{request.user} disliked {post.title}')
-        else:
-            like.is_liked = True
-            like.save()
-            logger.info(f'{request.user} liked {post.title}')
+        like.is_liked = not like.is_liked
+        like.save()
+        logger.info(f'{request.user} {"liked" if like.is_liked else "disliked"} {post.title}')
+    except PostLike.DoesNotExist:
+        PostLike.objects.create(
+            who_liked=user,
+            for_post=post,
+            is_liked=True,
+        )
+        logger.info(f'{request.user} liked {post.title}')
     except Exception as error:
-        try:
-            PostLike.objects.create(
-                who_liked=user,
-                for_post=post,
-            )
-            logger.info(f'{request.user} liked {post.title}')
-        except Exception as error:
-            logger.error(f'{request.user}: {error}')
-            messages.add_message(request, messages.ERROR, 'Internal Server Error')
-    logger.info(f'{request.user} connected {request.path}')
+        logger.error(f'{request.user}: {error}')
+        messages.add_message(request, messages.ERROR, 'Internal Server Error')
     referer = request.META.get('HTTP_REFERER', None)
     if referer:
         return redirect(referer)
@@ -304,8 +301,11 @@ def create_like(request: HttpRequest, slug: str) -> HttpResponse:
 @login_required
 def delete_comment(request: HttpRequest, pk: int) -> HttpResponse:
     comment = get_object_or_404(PostComment, pk=pk)
-    comment.delete()
-    logger.info(f'{request.user} deleted comment for {comment.for_post.title}')
+    if request.user == comment.who_commented:
+        comment.delete()
+        logger.info(f'{request.user} deleted comment for {comment.for_post.title}')
+    else:
+        return HttpResponseForbidden("You do not have permission to delete this comment.")
     referer = request.META.get('HTTP_REFERER', None)
     if referer:
         return redirect(referer)
@@ -315,26 +315,42 @@ def delete_comment(request: HttpRequest, pk: int) -> HttpResponse:
 
 @login_required
 def update_comment(request: HttpRequest, slug: str) -> HttpResponse:
-    get_comment = PostComment.objects.get(for_post__slug=slug, who_commented=request.user)
-    if request.method == "POST":
-        comment = request.POST['comment']
-        if str(comment).strip() == '':
-            messages.add_message(
-                request,
-                messages.ERROR,
-                'Comment can not be empty!'
-            )
-            return redirect('update_comment', slug=slug)
-        else:
-            get_comment.comment = comment
-            get_comment.save()
-            logger.info(f'{request.user} updated comment for {get_comment.for_post.title}')
-        return redirect('post', slug=slug)
-
-    context = {
-        "comment": get_comment,
-    }
-    return render(request, 'comment_update.html', context=context)
+    try:
+        get_comment = PostComment.objects.get(for_post__slug=slug, who_commented=request.user)
+        if request.method == "POST":
+            comment = request.POST['comment']
+            if str(comment).strip() == '':
+                messages.add_message(
+                    request,
+                    messages.ERROR,
+                    'Comment can not be empty!'
+                )
+                return redirect('update_comment', slug=slug)
+            else:
+                try:
+                    # Attempt to save the updated comment
+                    get_comment.comment = comment
+                    get_comment.save()
+                    logger.info(f'{request.user} updated comment for {get_comment.for_post.title}')
+                    messages.add_message(
+                        request,
+                        messages.SUCCESS,
+                        'Comment updated successfully!'
+                    )
+                except Exception as e:
+                    logger.error(f'{request.user} got an error while updating comment: {e}')
+                    messages.add_message(
+                        request,
+                        messages.ERROR,
+                        'An error occurred while updating the comment. Please try again later.'
+                    )
+            return redirect('post', slug=slug)
+        context = {
+            "comment": get_comment,
+        }
+        return render(request, 'comment_update.html', context=context)
+    except PostComment.DoesNotExist:
+        raise Http404
 
 
 @login_required
@@ -342,10 +358,9 @@ def detailed_profile(request: HttpRequest) -> HttpResponse:
     try:
         profile = Profile.objects.get(user_id=request.user.id)
         logger.info(f'{request.user} connected {request.path}')
-    except Exception as error:
-        logger.error(f'User {request.user} got error: {error}')
+    except Profile.DoesNotExist:
+        logger.error(f'User {request.user} does not have a profile.')
         return redirect('posts')
-
     posts = cache.get("%s's profile posts" % (str(request.user.profile.nickname),))
     if not posts:
         posts = Post.objects.filter(author__profile=profile).order_by('title')
@@ -362,40 +377,48 @@ def detailed_profile(request: HttpRequest) -> HttpResponse:
 
 @login_required
 def update_profile(request: HttpRequest) -> HttpResponse:
-    get_profile = Profile.objects.get(user=request.user)
+    profile = request.user.profile
+
     if request.method == "POST":
         try:
             if 'for_nickname' in request.POST:
                 nickname = request.POST['nickname']
-                if str(nickname).strip() == '':
-                    messages.add_message(
-                        request,
-                        messages.ERROR,
-                        'Nickname cannot be empty!'
-                    )
+                if not str(nickname).strip():
+                    messages.error(request, 'Nickname cannot be empty!')
                     return redirect('update_profile')
-                get_profile.nickname = nickname
-                get_profile.save()
-            if 'for_image' in request.POST:
-                get_profile.profile_img = request.FILES['image']
-                get_profile.save()
+                profile.nickname = nickname
+                profile.save()
+
+            if 'for_image' in request.POST and 'image' in request.FILES:
+                profile.profile_img = request.FILES['image']
+                profile.save()
+
             if 'for_about' in request.POST:
-                get_profile.about = request.POST['about']
-                get_profile.save()
+                profile.about = request.POST['about']
+                profile.save()
+
             if 'for_email' in request.POST:
-                user_email = User.objects.get(username=request.user.username)
-                user_email.email = request.POST['email']
-                user_email.save()
+                new_email = request.POST['email']
+                validate_email(new_email)
+
+                if User.objects.filter(email=new_email).exclude(username=request.user.username).exists():
+                    messages.error(request, 'This email is already in use by another user.')
+                    return redirect('update_profile')
+
+                request.user.email = new_email
+                request.user.save()
+                messages.success(request, 'Email updated successfully.')
+                logger.info(f'{request.user} updated email to {new_email}.')
+
+            messages.success(request, 'Profile updated successfully.')
             logger.info(f'{request.user} updated profile.')
+
             return redirect('update_profile')
-        except Exception as error:
-            logger.error(f'{request.user}:{error}')
-            messages.add_message(
-                request,
-                messages.ERROR,
-                'Server error!'
-            )
-            return redirect('update_profile')
+        except ValidationError as e:
+            messages.error(request, 'Please enter a valid email address.')
+        except Exception as e:
+            messages.error(request, 'Server error!')
+            logger.error(f'{request.user}: {e}')
 
     return render(request, 'update_profile.html')
 
@@ -464,6 +487,7 @@ def user_followers(request: HttpRequest, nickname: str) -> HttpResponse:
         return render(request, 'followers.html', context=context)
     else:
         raise Http404
+
 
 @login_required
 def user_followings(request: HttpRequest, nickname) -> HttpResponse:

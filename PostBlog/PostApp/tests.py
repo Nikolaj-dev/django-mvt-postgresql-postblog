@@ -13,7 +13,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 class LoginViewTest(TestCase):
     def setUp(self) -> None:
         self.username = 'testUser'
-        self.password = 'testPass'
+        self.password = 'testPass1'
         self.user = User.objects.create_user(
             username=self.username,
             password=self.password
@@ -50,8 +50,8 @@ class SignUpViewTest(TestCase):
             reverse('sign_up'),
             {
                 'username': 'testUser',
-                'password1': 'testPass',
-                'password2': 'testPass',
+                'password1': 'testPass1',
+                'password2': 'testPass1',
                 'image': self.image1,
                 'nickname': 'testNickname',
                 'email': 'testEmail@gmail.com',
@@ -300,12 +300,12 @@ class CommentViewsTest(TestCase):
 
         self.user = User.objects.create_user(
             username='testUser',
-            password='testPass',
+            password='testPass1',
         )
 
         self.client.login(
             username='testUser',
-            password='testPass',
+            password='testPass1',
         )
 
         self.post = Post.objects.create(
@@ -328,12 +328,7 @@ class CommentViewsTest(TestCase):
                 kwargs={'slug': self.post.slug}),
             data={'comment': 'newComment'})
         self.assertEqual(response.status_code, 302)
-        if PostComment.objects.filter(comment='newComment'):
-            index = True
-            self.assertTrue(index)
-        else:
-            index = False
-            self.assertTrue(index)
+        self.assertTrue(PostComment.objects.filter(comment='newComment'))
 
     def test_update_invalid_comment(self):
         response = self.client.post(
@@ -343,12 +338,7 @@ class CommentViewsTest(TestCase):
             ),
             data={'comment': ' '})
         self.assertEqual(response.status_code, 302)
-        if PostComment.objects.filter(comment=' '):
-            index = False
-            self.assertTrue(index)
-        else:
-            index = True
-            self.assertTrue(index)
+        self.assertFalse(PostComment.objects.filter(comment=' '))
 
     def test_delete_valid_comment(self):
         comment = PostComment.objects.create(
@@ -358,12 +348,7 @@ class CommentViewsTest(TestCase):
         )
         response = self.client.get(reverse('delete_comment', kwargs={'pk': comment.pk}))
         self.assertEqual(response.status_code, 302)
-        if PostComment.objects.filter(comment='deletedComment'):
-            index = False
-            self.assertTrue(index)
-        else:
-            index = True
-            self.assertTrue(index)
+        self.assertFalse(PostComment.objects.filter(comment='deletedComment'))
 
     def test_delete_invalid_comment(self):
         response = self.client.get(reverse('delete_comment', kwargs={'pk': 1000321000}))
@@ -388,7 +373,7 @@ class DetailedProfileViewTest(TestCase):
 
         self.user = User.objects.create_user(
             username='testUser',
-            password='testPass',
+            password='testPass1',
         )
         self.profile = Profile.objects.create(
             user=self.user,
@@ -398,7 +383,7 @@ class DetailedProfileViewTest(TestCase):
         )
         self.client.login(
             username='testUser',
-            password='testPass',
+            password='testPass1',
         )
 
     def test_profile_valid_get_method(self):
@@ -452,19 +437,19 @@ class UserPasswordChangeTestCase(TestCase):
     def setUp(self) -> None:
         self.user = User.objects.create_user(
             username='testuser',
-            password='testpassword'
+            password='Testpassword1'
         )
         self.url = reverse('change_password')
-        self.client.login(username='testuser', password='testpassword')
+        self.client.login(username='testuser', password='Testpassword1')
 
     def test_password_change_view_exists(self):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
 
     def test_password_change(self):
-        new_password = 'newtestpassword'
+        new_password = 'Newtestpassword1'
         data = {
-            'old_password': 'testpassword',
+            'old_password': 'Testpassword1',
             'new_password1': new_password,
             'new_password2': new_password,
         }
@@ -493,7 +478,7 @@ class FollowersFollowingsLikesFeedbackViewsTest(TestCase):
 
         self.user = User.objects.create_user(
                     username='testuser',
-                    password='testpassword'
+                    password='Testpassword1'
                 )
         self.profile = Profile.objects.create(
             about='about',
@@ -503,12 +488,12 @@ class FollowersFollowingsLikesFeedbackViewsTest(TestCase):
         )
         self.client.login(
             username='testuser',
-            password='testpassword'
+            password='Testpassword1'
         )
 
         self.another_user = User.objects.create_user(
             username='anUser',
-            password='anPass'
+            password='anPass12'
         )
         self.another_profile = Profile.objects.create(
             user=self.another_user,
