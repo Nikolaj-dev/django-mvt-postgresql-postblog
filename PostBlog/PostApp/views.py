@@ -278,14 +278,12 @@ def create_like(request: HttpRequest, slug: str) -> HttpResponse:
     user = request.user
     try:
         like = PostLike.objects.get(for_post=post, who_liked=user)
-        like.is_liked = not like.is_liked
-        like.save()
-        logger.info(f'{request.user} {"liked" if like.is_liked else "disliked"} {post.title}')
+        like.delete()
+        logger.info(f'{request.user} disliked {post.title}')
     except PostLike.DoesNotExist:
         PostLike.objects.create(
             who_liked=user,
             for_post=post,
-            is_liked=True,
         )
         logger.info(f'{request.user} liked {post.title}')
     except Exception as error:
@@ -548,7 +546,6 @@ def my_likes(request: HttpRequest) -> HttpResponse:
     if not likes:
         likes = PostLike.objects.filter(
             who_liked=request.user,
-            is_liked=True,
         ).order_by('for_post')
         cache.set("%s's likes" % (str(request.user.profile.nickname),), likes, timeout=5)
     paginator = Paginator(likes, 9)

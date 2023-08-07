@@ -38,7 +38,6 @@ class Post(models.Model):
 class PostLike(models.Model):
     who_liked = models.ForeignKey(User, on_delete=models.CASCADE)
     for_post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    is_liked = models.BooleanField(default=True)
 
     def __str__(self):
         return str(f"{self.who_liked} liked {self.for_post}")

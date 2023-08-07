@@ -38,7 +38,6 @@ def count_likes(slug: int) -> int:
         cache.set("detailed_post %s" % (str(slug),), post, timeout=15)
     likes = PostLike.objects.filter(
         for_post=post,
-        is_liked=True,
     ).count()
     return int(likes)
 

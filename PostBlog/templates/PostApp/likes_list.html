@@ -10,7 +10,7 @@
     <div class="container mt-3">
         <div class="row">
             {% for like in likes %}
-            {% if like.is_liked %}
+            {% if like %}
                 <div class="col-md-2 text-center">
                     <img class="rounded-circle" style="max-width: 100px; max-height: 100px; min-width: 100px; min-height: 100px;" src="{{ like.who_liked.profile.profile_img.url }}" alt=""><br>
                     {% if request.user == like.who_liked %}

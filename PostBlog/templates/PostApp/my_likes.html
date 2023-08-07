@@ -31,15 +31,10 @@
                     {% if request.user.is_authenticated %}
                     {% post_like like.for_post.pk as liked %}
                     {% if liked %}
-                        {% if liked.is_liked %}
-                            <button class="bi bi-heartbreak btn btn-danger w-25" onclick="window.location.href = '{% url 'create_like' like.for_post.slug %}'">Like</button>
+                            <button class="bi bi-heartbreak btn btn-danger w-25" onclick="window.location.href = '{% url 'create_like' like.for_post.slug %}'">Unlike</button>
                         {% else %}
                             <button class="bi bi-heart-fill btn btn-outline-success w-25" onclick="window.location.href = '{% url 'create_like' like.for_post.slug %}'">Like</button>
                         {% endif %}
-                        {% else %}
-                        <button class="bi bi-heart-fill btn btn-outline-success w-25" onclick="window.location.href = '{% url 'create_like' like.for_post.slug %}'">Like</button>
-                        {% endif %}
-
                         {% else %}
                         <button class="bi bi-heart-fill btn btn-outline-success w-25" onclick="window.location.href = '{% url 'login'%}'">Like</button>
                 {% endif %}
