@@ -36,11 +36,14 @@
                     </p>
                 {% if request.user.is_authenticated %}
                     {% post_like post.pk as like %}
-                    {% if like %}
-                            <button class="bi bi-heartbreak btn btn-danger w-25" onclick="window.location.href = '{% url 'create_like' post.slug %}'">Unlike</button>
+                    <form action="{% url 'create_like' post.slug %}" method="post">
+                        {% csrf_token %}
+                        {% if like %}
+                            <button type="submit" class="bi bi-heartbreak btn btn-danger w-25">Unlike</button>
                         {% else %}
-                            <button class="bi bi-heart-fill btn btn-outline-success w-25" onclick="window.location.href = '{% url 'create_like' post.slug %}'">Like</button>
+                            <button type="submit" class="bi bi-heart-fill btn btn-outline-success w-25">Like</button>
                         {% endif %}
+                    </form>
                         {% else %}
                         <button class="bi bi-heart-fill btn btn-outline-success w-25" onclick="window.location.href = '{% url 'login'%}'">Like</button>
                 {% endif %}

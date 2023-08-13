@@ -30,14 +30,18 @@
                     <p class="card-text fs-5 bi bi-calendar4-event"> {{ like.for_post.created_date }}</p>
                     {% if request.user.is_authenticated %}
                     {% post_like like.for_post.pk as liked %}
-                    {% if liked %}
-                            <button class="bi bi-heartbreak btn btn-danger w-25" onclick="window.location.href = '{% url 'create_like' like.for_post.slug %}'">Unlike</button>
+                        <form action="{% url 'create_like' like.for_post.slug %}" method="POST">
+                        {% csrf_token %}
+                            {% if liked %}
+                            <button type="submit" class="bi bi-heartbreak btn btn-danger w-25">Unlike</button>
                         {% else %}
-                            <button class="bi bi-heart-fill btn btn-outline-success w-25" onclick="window.location.href = '{% url 'create_like' like.for_post.slug %}'">Like</button>
+                            <button type="submit" class="bi bi-heart-fill btn btn-outline-success w-25">Like</button>
+                         </form>
                         {% endif %}
-                        {% else %}
-                        <button class="bi bi-heart-fill btn btn-outline-success w-25" onclick="window.location.href = '{% url 'login'%}'">Like</button>
+                            {% else %}
+                        <button type="submit" class="bi bi-heart-fill btn btn-outline-success w-25" onclick="window.location.href = '{% url 'login'%}'">Like</button>
                 {% endif %}
+
                 </div>
 
 

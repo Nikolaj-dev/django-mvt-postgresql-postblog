@@ -26,21 +26,26 @@
         </p>
         {% if request.user.is_authenticated %}
             {% post_like post.pk as like %}
-            {% if like %}
-                    <button class="bi bi-heartbreak btn btn-danger w-25" onclick="window.location.href = '{% url 'create_like' post.slug %}'">Unlike</button>
+            <form action="{% url 'create_like' post.slug %}" method="post">
+                {% csrf_token %}
+                {% if like %}
+                    <button type="submit" class="bi bi-heartbreak btn btn-danger w-25">Unlike</button>
                 {% else %}
-                    <button class="bi bi-heart-fill btn btn-outline-success w-25" onclick="window.location.href = '{% url 'create_like' post.slug %}'">Like</button>
+                    <button type="submit" class="bi bi-heart-fill btn btn-outline-success w-25">Like</button>
                 {% endif %}
+            </form>
             {% else %}
                 <button class="bi bi-heart-fill btn btn-outline-success w-25" onclick="window.location.href = '{% url 'login'%}'">Like</button>
         {% endif %}
         {% if request.user.username == post.author.username %}
     <span class="m-2 justify-content-center d-flex">
-        <a class="bi bi-eraser-fill btn btn-outline-danger mx-1" href="{% url 'delete_post' post.pk %}">
-        Delete post
+        <form action="{% url 'delete_post' post.pk %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="bi bi-eraser-fill btn btn-outline-danger mx-1">Delete the post</button>
+        </form>
     </a>
     <a class="bi bi-pencil-square btn btn-outline-success" href="{% url 'update_post' post.slug %}">
-        Update post
+        Update the post
     </a>
     </span>
     {% endif %}
@@ -49,7 +54,7 @@
         <h1 class="text-danger text-center">{{ message }}</h1>
     {% endfor %}
     {% if request.user.is_authenticated %}
-        <form method="POST">
+        <form method="POST" action="{% url 'create_comment' post.slug %}">
             {% csrf_token %}
             <label for="comment" class="fs-5">Your comment:</label><br>
             <textarea class="form-control" name="comment" id="comment" required></textarea><br>
@@ -79,9 +84,15 @@
             {{ comment.created_time }}<br>
         </p>
         {% if request.user == comment.who_commented %}
-            <button class="btn btn-danger bi bi-trash3" name="delete" onclick="window.location.href = '{% url 'delete_comment' comment.pk %}'">Delete</button>
-            <button class="btn btn-success bi bi-pencil-square" name="update" onclick="window.location.href = '{% url 'update_comment' comment.for_post.slug %}'">Update</button>
+            <div class="btn-group" role="group" aria-label="Actions">
+            <form action="{% url 'delete_comment' comment.pk %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger bi bi-trash3" name="delete">Delete</button>
+            </form>
+            <button class="ms-1 rounded btn btn-success bi bi-pencil-square" name="update" onclick="window.location.href = '{% url 'update_comment' comment.for_post.slug comment.id %}'">Update</button>
+            </div>
         {% endif %}
+
         </div>
         <hr>
     {% endfor %}

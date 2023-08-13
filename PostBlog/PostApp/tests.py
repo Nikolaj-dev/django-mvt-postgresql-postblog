@@ -109,15 +109,8 @@ class DetailedPostViewsCRUDTest(TestCase):
             author=self.user,
             image=self.image1,
         )
-        self.post_for_posting = Post.objects.create(
-            title='testPost2',
-            body='testBody',
-            author=self.user,
-            image=self.image2,
-        )
 
         self.post_for_getting_url = reverse('post', kwargs={'slug': self.post_for_getting.slug})
-        self.post_for_posting_url = reverse('post', kwargs={'slug': self.post_for_posting.slug})
         self.client.login(username='testAdmin', password='testPassword')
 
     def test_valid_get_method(self):
@@ -128,17 +121,6 @@ class DetailedPostViewsCRUDTest(TestCase):
         response = self.client.get(reverse('post', kwargs={'slug': '122121211'}))
         self.assertTrue(response.status_code, 404)
 
-    # writing a comment for the post
-    def test_valid_post_method(self):
-        response = self.client.post(path=self.post_for_posting_url, data={'comment': 'Nice Post!'})
-        self.assertEqual(response.status_code, 302)
-
-    def test_invalid_post_method(self):
-        response = self.client.post(path=self.post_for_posting_url, data={'comment': ''})
-        self.assertEqual(response.status_code, 302)
-        self.assertFalse(PostComment.objects.all())
-
-    # updating the comment for the post
     def test_valid_update_method(self):
         response = self.client.post(
             path=reverse('update_post', kwargs={'slug': self.post_for_getting.slug}),
@@ -320,6 +302,23 @@ class CommentViewsTest(TestCase):
             who_commented_id=self.user.id,
             comment='testComment'
         )
+
+        self.post_for_posting = Post.objects.create(
+            title='testPost2',
+            body='testBody',
+            author=self.user,
+            image=self.image2,
+        )
+        self.post_for_posting_url = reverse('create_comment', kwargs={'slug': self.post_for_posting.slug})
+
+    def test_valid_post_method(self):
+        response = self.client.post(path=self.post_for_posting_url, data={'comment': 'Nice Post!'})
+        self.assertEqual(response.status_code, 302)
+
+    def test_invalid_post_method(self):
+        response = self.client.post(path=self.post_for_posting_url, data={'comment': ' '})
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(PostComment.objects.filter(comment=' '))
 
     def test_update_valid_comment(self):
         response = self.client.post(
@@ -590,3 +589,6 @@ class AboutViewTest(TestCase):
     def test_about_view(self):
         response = self.client.get(reverse('about'))
         self.assertEqual(response.status_code, 200)
+
+
+

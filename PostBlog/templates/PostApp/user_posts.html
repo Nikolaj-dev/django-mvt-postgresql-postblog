@@ -20,11 +20,14 @@
         <div>
             <button style="color: #0dcaf0" class="btn" onclick="window.location.href = '{% url 'user_followers' author.nickname %}'">followers</button>
                 <button style="color: #0dcaf0" class="btn" onclick="window.location.href = '{% url 'user_followings' author.nickname %}'">followings</button>
+            <form action="{% url 'to_follow_user' author.pk %}" method="post">
+                {% csrf_token %}
                 {% if followed %}
-                        <button class="btn bi bi-backspace-fill" onclick="window.location.href = '{% url 'to_follow_user' author.pk %}'">Unfollow</button>
+                        <button class="btn bi bi-backspace-fill">Unfollow</button>
                 {% else %}
-                    <button class="btn  bi bi-patch-check" onclick="window.location.href = '{% url 'to_follow_user' author.pk %}'">Follow</button>
+                    <button class="btn  bi bi-patch-check">Follow</button>
                 {% endif %}
+            </form>
         </div>
        </div>
     <h3 class="text-center mb-5 text-success">{{ author.nickname }}'s posts</h3>
@@ -56,12 +59,14 @@
                     </p>
                 {% if request.user.is_authenticated %}
                     {% post_like post.pk as like %}
-                    {% if like %}
-                            <button class="bi bi-heartbreak btn btn-danger w-25" onclick="window.location.href = '{% url 'create_like' post.slug %}'">Unlike</button>
+                    <form action="{% url 'create_like' post.slug %}" method="post">
+                        {% csrf_token %}
+                        {% if like %}
+                            <button type="submit" class="bi bi-heartbreak btn btn-danger w-25">Unlike</button>
                         {% else %}
-                            <button class="bi bi-heart-fill btn btn-outline-success w-25" onclick="window.location.href = '{% url 'create_like' post.slug %}'">Like</button>
+                            <button type="submit" class="bi bi-heart-fill btn btn-outline-success w-25">Like</button>
                         {% endif %}
-
+                    </form>
                         {% else %}
                         <button class="bi bi-heart-fill btn btn-outline-success w-25" onclick="window.location.href = '{% url 'login'%}'">Like</button>
                 {% endif %}

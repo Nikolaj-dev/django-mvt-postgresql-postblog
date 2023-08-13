@@ -125,32 +125,6 @@ def detailed_post(request: HttpRequest, slug: str) -> HttpResponse:
     context = {
         "post": post,
     }
-    if request.method == "POST":
-        comment = request.POST['comment']
-        if str(comment).strip() == '':
-            messages.add_message(
-                request,
-                messages.ERROR,
-                'Comment can not be empty!'
-            )
-            return redirect('post', slug=slug)
-        else:
-            try:
-                PostComment.objects.create(
-                    who_commented_id=request.user.id,
-                    for_post_id=post.id,
-                    comment=comment,
-                )
-                logger.info(f'{request.user} left a comment for {post.title}')
-            except Exception as error:
-                logger.error(f'{request.user}:{error}')
-                messages.add_message(
-                    request,
-                    messages.ERROR,
-                    'Server error!'
-                )
-        return redirect('post', slug=slug)
-
     return render(request, 'post.html', context=context)
 
 
@@ -161,11 +135,11 @@ def create_post(request: HttpRequest) -> HttpResponse:
             title = request.POST['title']
             body = request.POST['body']
             image = request.FILES['image']
-            if str(title).strip() == '' or str(body).strip() == '':
+            if not (str(title).strip() and str(body).strip()):
                 messages.add_message(
                     request,
                     messages.ERROR,
-                    'All fields must be set!'
+                    'Please ensure that all fields in the form are completed.'
                 )
                 return redirect('create_post')
             else:
@@ -185,7 +159,7 @@ def create_post(request: HttpRequest) -> HttpResponse:
             messages.add_message(
                 request,
                 messages.ERROR,
-                'Image filed must be set!'
+                'Please load the image!'
             )
             return redirect('create_post')
     return render(request, 'create_post.html')
@@ -205,13 +179,13 @@ def update_post(request: HttpRequest, slug: str) -> HttpResponse:
             if 'title' in request.POST:
                 title = request.POST['title']
                 post.title = title
-                if str(title).strip() != '':
+                if str(title).strip():
                     post.save()
                     logger.info(f'{request.user} updated the title in {post.title}')
             if 'body' in request.POST:
                 body = request.POST['body']
                 post.body = body
-                if str(body).strip() != '':
+                if str(body).strip():
                     post.save()
                     logger.info(f'{request.user} updated the body in {post.title}')
             if 'image' in request.FILES:
@@ -226,12 +200,17 @@ def update_post(request: HttpRequest, slug: str) -> HttpResponse:
 
 @login_required
 def delete_post(request: HttpRequest, pk: int) -> HttpResponse:
-    post = get_object_or_404(Post, pk=pk)
-    if request.user.pk == post.author_id:
-        post.delete()
-        logger.info(f'{request.user} deleted post {post.title}')
-        return redirect("posts")
+    if request.method == "POST":
+        post = get_object_or_404(Post, pk=pk)
+        if request.user == post.author:
+            post.delete()
+            logger.info(f'{request.user} deleted post "{post.title}"')
+            messages.success(request, 'Post deleted successfully!')
+        else:
+            messages.error(request, 'You are not authorized to delete this post.')
+        return redirect('posts')
     else:
+        # Handle GET request
         return HttpResponse("Method not allowed!")
 
 
@@ -274,47 +253,76 @@ def all_likes(request: HttpRequest, slug: str) -> HttpResponse:
 
 @login_required
 def create_like(request: HttpRequest, slug: str) -> HttpResponse:
-    post = get_object_or_404(Post, slug=slug)
-    user = request.user
-    try:
-        like = PostLike.objects.get(for_post=post, who_liked=user)
-        like.delete()
-        logger.info(f'{request.user} disliked {post.title}')
-    except PostLike.DoesNotExist:
-        PostLike.objects.create(
-            who_liked=user,
-            for_post=post,
-        )
-        logger.info(f'{request.user} liked {post.title}')
-    except Exception as error:
-        logger.error(f'{request.user}: {error}')
-        messages.add_message(request, messages.ERROR, 'Internal Server Error')
-    referer = request.META.get('HTTP_REFERER', None)
-    if referer:
-        return redirect(referer)
+    if request.method == 'POST':
+        post = get_object_or_404(Post, slug=slug)
+        user = request.user
+        try:
+            like = PostLike.objects.get(for_post=post, who_liked=user)
+            like.delete()
+            logger.info(f'{request.user} disliked {post.title}')
+        except PostLike.DoesNotExist:
+            PostLike.objects.create(
+                who_liked=user,
+                for_post=post,
+            )
+            logger.info(f'{request.user} liked {post.title}')
+        except Exception as error:
+            logger.error(f'{request.user}: {error}')
+            messages.add_message(request, messages.ERROR, 'Internal Server Error')
+        referer = request.META.get('HTTP_REFERER', None)
+        if referer:
+            return redirect(referer)
+        else:
+            return redirect(reverse('post', kwargs={'slug': slug}))
     else:
-        return redirect(reverse('post', kwargs={'slug': slug}))
+        return HttpResponse("Method not allowed!")
+
+
+@login_required
+def create_comment(request, slug):
+    post = get_object_or_404(Post, slug=slug)
+
+    if request.method == "POST":
+        comment = request.POST.get('comment')
+        if comment and comment.strip():
+            try:
+                PostComment.objects.create(
+                    who_commented=request.user,
+                    for_post=post,
+                    comment=comment,
+                )
+                logger.info(f'{request.user} left a comment for {post.title}')
+            except Exception as error:
+                logger.error(f'{request.user}: {error}')
+                messages.error(request, 'Server error! Comment could not be posted.')
+        else:
+            messages.error(request, 'Comment can not be empty!')
+
+    return redirect('post', slug=slug)
 
 
 @login_required
 def delete_comment(request: HttpRequest, pk: int) -> HttpResponse:
-    comment = get_object_or_404(PostComment, pk=pk)
-    if request.user == comment.who_commented:
-        comment.delete()
-        logger.info(f'{request.user} deleted comment for {comment.for_post.title}')
+    if request.method == 'POST':
+        comment = get_object_or_404(PostComment, pk=pk)
+        if request.user == comment.who_commented:
+            comment.delete()
+            logger.info(f'{request.user} deleted comment for {comment.for_post.title}')
+        else:
+            return HttpResponseForbidden("You do not have permission to delete this comment.")
+        referer = request.META.get('HTTP_REFERER', None)
+        if referer:
+            return redirect(referer)
+        else:
+            return redirect(reverse('posts'))
     else:
-        return HttpResponseForbidden("You do not have permission to delete this comment.")
-    referer = request.META.get('HTTP_REFERER', None)
-    if referer:
-        return redirect(referer)
-    else:
-        return redirect(reverse('posts'))
+        return HttpResponse('Method not allowed.')
 
 
 @login_required
-def update_comment(request: HttpRequest, slug: str) -> HttpResponse:
+def update_comment(request: HttpRequest, slug: str, comment_id: int) -> HttpResponse:
     try:
-        get_comment = PostComment.objects.get(for_post__slug=slug, who_commented=request.user)
+        get_comment = PostComment.objects.get(for_post__slug=slug, who_commented=request.user, id=comment_id)
         if request.method == "POST":
             comment = request.POST['comment']
             if str(comment).strip() == '':
@@ -506,38 +514,41 @@ def user_followings(request: HttpRequest, nickname) -> HttpResponse:
 
 @login_required
 def to_follow_user(request: HttpRequest, pk: int) -> HttpResponse:
-    who_followed = get_object_or_404(Profile, pk=pk)
-    who_follow = request.user.profile
-    try:
-        followed = Follower.objects.get(
-            who_followed=who_followed,
-            who_follow=who_follow,
-        )
-        if followed:
-            followed.delete()
-            logger.info(f'{request.user} unfollowed {who_followed.nickname}')
-        else:
-            Follower.objects.create(
-                who_followed=who_followed,
-                who_follow=who_follow,
-            )
-            logger.info(f'{request.user} followed {who_followed.nickname}')
-    except Exception as error:
+    if request.method == 'POST':
+        who_followed = get_object_or_404(Profile, pk=pk)
+        who_follow = request.user.profile
         try:
-            Follower.objects.create(
+            followed = Follower.objects.get(
                 who_followed=who_followed,
                 who_follow=who_follow,
             )
-            logger.info(f'{request.user} followed {who_followed.nickname}')
+            if followed:
+                followed.delete()
+                logger.info(f'{request.user} unfollowed {who_followed.nickname}')
+            else:
+                Follower.objects.create(
+                    who_followed=who_followed,
+                    who_follow=who_follow,
+                )
+                logger.info(f'{request.user} followed {who_followed.nickname}')
         except Exception as error:
-            logger.error(f'{request.user}: {error}')
-            messages.add_message(request, messages.ERROR, 'Internal Server Error')
-    logger.info(f'{request.user} connected {request.path}')
-    referer = request.META.get('HTTP_REFERER', None)
-    if referer:
-        return redirect(referer)
+            try:
+                Follower.objects.create(
+                    who_followed=who_followed,
+                    who_follow=who_follow,
+                )
+                logger.info(f'{request.user} followed {who_followed.nickname}')
+            except Exception as error:
+                logger.error(f'{request.user}: {error}')
+                messages.add_message(request, messages.ERROR, 'Internal Server Error')
+        logger.info(f'{request.user} connected {request.path}')
+        referer = request.META.get('HTTP_REFERER', None)
+        if referer:
+            return redirect(referer)
+        else:
+            return redirect(reverse('posts'))
     else:
-        return redirect(reverse('posts'))
+        return HttpResponse('Method not allowed!')
 
 
 @login_required
