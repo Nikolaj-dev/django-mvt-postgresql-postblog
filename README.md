@@ -17,3 +17,4 @@
  - bootstrap css/js
  - admin interface with grappelli
  - the variables are in the environment
+![Alt Text](bandicam 2023-08-16 17-35-39-689.gif)
