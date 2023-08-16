@@ -325,13 +325,14 @@ def update_comment(request: HttpRequest, slug: str, comment_id: int) -> HttpResp
         get_comment = PostComment.objects.get(for_post__slug=slug, who_commented=request.user, id=comment_id)
         if request.method == "POST":
             comment = request.POST['comment']
+
             if str(comment).strip() == '':
                 messages.add_message(
                     request,
                     messages.ERROR,
                     'Comment can not be empty!'
                 )
-                return redirect('update_comment', slug=slug)
+                return redirect('update_comment', slug=slug, comment_id=comment_id)
             else:
                 try:
                     # Attempt to save the updated comment

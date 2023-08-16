@@ -253,14 +253,14 @@ class TestAllLikesView(TestCase):
 
     def test_create_like(self):
         # to like
-        response = self.client.get(reverse('create_like', kwargs={'slug': self.object.slug}))
+        response = self.client.post(reverse('create_like', kwargs={'slug': self.object.slug}))
         # to dislike
-        response1 = self.client.get(reverse('create_like', kwargs={'slug': self.object.slug}))
+        response1 = self.client.post(reverse('create_like', kwargs={'slug': self.object.slug}))
         url = reverse('post', kwargs={'slug': self.object.slug})
         self.assertRedirects(response, url)
         self.assertRedirects(response1, url)
 
-        invalid_response = self.client.get(reverse('create_like', kwargs={'slug': '21321312'}))
+        invalid_response = self.client.post(reverse('create_like', kwargs={'slug': '21321312'}))
         self.assertEqual(invalid_response.status_code, 404)
 
 
@@ -324,7 +324,7 @@ class CommentViewsTest(TestCase):
         response = self.client.post(
             path=reverse(
                 'update_comment',
-                kwargs={'slug': self.post.slug}),
+                kwargs={'slug': self.post.slug, 'comment_id': self.comment.id}),
             data={'comment': 'newComment'})
         self.assertEqual(response.status_code, 302)
         self.assertTrue(PostComment.objects.filter(comment='newComment'))
@@ -333,11 +333,10 @@ class CommentViewsTest(TestCase):
         response = self.client.post(
             path=reverse(
                 'update_comment',
-                kwargs={'slug': self.post.slug}
-            ),
+                kwargs={'slug': self.post.slug, 'comment_id': self.comment.id}),
             data={'comment': ' '})
         self.assertEqual(response.status_code, 302)
-        self.assertFalse(PostComment.objects.filter(comment=' '))
+        self.assertFalse(PostComment.objects.filter(comment=' ').exists())
 
     def test_delete_valid_comment(self):
         comment = PostComment.objects.create(
@@ -345,12 +344,12 @@ class CommentViewsTest(TestCase):
             who_commented=self.user,
             comment='deletedComment',
         )
-        response = self.client.get(reverse('delete_comment', kwargs={'pk': comment.pk}))
+        response = self.client.post(reverse('delete_comment', kwargs={'pk': comment.pk}))
         self.assertEqual(response.status_code, 302)
         self.assertFalse(PostComment.objects.filter(comment='deletedComment'))
 
     def test_delete_invalid_comment(self):
-        response = self.client.get(reverse('delete_comment', kwargs={'pk': 1000321000}))
+        response = self.client.post(reverse('delete_comment', kwargs={'pk': 1000321000}))
         self.assertEqual(response.status_code, 404)
 
 
@@ -543,7 +542,7 @@ class FollowersFollowingsLikesFeedbackViewsTest(TestCase):
 
     def test_to_follow_user_view(self):
         # to follow
-        response = self.client.get(
+        response = self.client.post(
             reverse('to_follow_user', kwargs={'pk': self.another_profile.pk})
         )
         follower = self.profile.who_follow.filter(
@@ -552,7 +551,7 @@ class FollowersFollowingsLikesFeedbackViewsTest(TestCase):
         self.assertTrue(follower)
 
         # to unfollow
-        response1 = self.client.get(
+        response1 = self.client.post(
             reverse('to_follow_user', kwargs={'pk': self.another_profile.pk})
         )
         follower1 = self.profile.who_follow.filter(
@@ -563,7 +562,7 @@ class FollowersFollowingsLikesFeedbackViewsTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response1.status_code, 302)
 
-        invalid_response = self.client.get(
+        invalid_response = self.client.post(
             reverse('to_follow_user', kwargs={'pk': 2340249824982198})
         )
 
