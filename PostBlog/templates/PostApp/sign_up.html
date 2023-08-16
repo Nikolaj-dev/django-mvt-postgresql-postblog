@@ -10,6 +10,10 @@
         <h1 class="text-danger text-center">{{ message }}</h1>
     {% endfor %}
     <div class="container text-center w-50 border rounded-5 p-5 mt-3">
+        <p class="fs-5">* Your password can’t be too similar to your other personal information.<br>
+            Your password must contain at least 8 characters.<br>
+            Your password can’t be a commonly used password.<br>
+            Your password can’t be entirely numeric.</p>
         <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         <label class="form-label" for="username">Login:</label><br>
