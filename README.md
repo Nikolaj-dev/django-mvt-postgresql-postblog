@@ -17,4 +17,4 @@
  - bootstrap css/js
  - admin interface with grappelli
  - the variables are in the environment
-![Alt Text](bandicam 2023-08-16 17-35-39-689.gif)
+![Alt Text](https://github.com/Nikolaj-dev/django-mvt-sqlite-postblog/blob/main/bandicam%202023-08-16%2017-35-39-689.gif)
