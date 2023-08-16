@@ -1,4 +1,4 @@
-# django-mvt-sqlite-postblog
+# django-mvt-postgresql-postblog
  Django-mvt postplog app with authentication system(registration, login, password reset),
  profile/followers/like/comments/feedback functionality.
  Bootstrap + custom css.
@@ -12,7 +12,7 @@
  - pagination
  - feedback
  - django-messages
- - no tests
+ - tests provided
  - templatetags
  - bootstrap css/js
  - admin interface with grappelli
