@@ -1,5 +1,5 @@
 # django-mvt-postgresql-postblog
- Django-mvt postplog app with authentication system(registration, login, password reset),
+ Django-mvt postblog app with authentication system(registration, login, password reset),
  profile/followers/like/comments/feedback functionality.
  Bootstrap + custom css.
  Django-MVT(Model-view-template) project.
