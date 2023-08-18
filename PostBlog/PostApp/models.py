@@ -5,7 +5,7 @@ from django.utils.text import slugify
 
 
 class Post(models.Model):
-    title = models.CharField('Title', max_length=128, db_index=True)
+    title = models.CharField('Title', max_length=150, db_index=True)
     body = models.TextField('Text')
     created_date = models.DateField('Date of creation', auto_now_add=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -14,6 +14,7 @@ class Post(models.Model):
         null=False,
         blank=True,
         unique=True,
+        max_length=255,
     )
 
     def __str__(self):
