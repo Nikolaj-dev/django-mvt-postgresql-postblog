@@ -1,5 +1,5 @@
-# django-mvt-sqlite-postblog
- Django-mvt postplog app with authentication system(registration, login, password reset),
+# django-mvt-postgresql-postblog
+ Django-mvt postblog app with authentication system(registration, login, password reset),
  profile/followers/like/comments/feedback functionality.
  Bootstrap + custom css.
  Django-MVT(Model-view-template) project.
@@ -12,8 +12,9 @@
  - pagination
  - feedback
  - django-messages
- - no tests
+ - tests provided
  - templatetags
  - bootstrap css/js
  - admin interface with grappelli
  - the variables are in the environment
+![Alt Text](https://github.com/Nikolaj-dev/django-mvt-sqlite-postblog/blob/main/bandicam%202023-08-16%2017-35-39-689.gif)
