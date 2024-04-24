@@ -52,5 +52,5 @@
 
 ## Автор
 
-[Ваше имя](https://github.com/Nikolaj-dev)
+[Nikolaj](https://github.com/Nikolaj-dev)
 
