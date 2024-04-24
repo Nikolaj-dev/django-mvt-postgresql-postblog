@@ -1,0 +1,33 @@
+version: '3'
+
+services:
+  # Сервис для PostgreSQL
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: postblog_db
+      POSTGRES_USER: nick
+      POSTGRES_PASSWORD: nick
+
+  # Сервис для Redis
+  redis:
+    image: redis:latest
+
+  # Сервис для Django приложения
+  web:
+    build: .
+    command: >
+      bash -c "sleep 10 &&
+               python PostBlog/manage.py makemigrations &&
+               python PostBlog/manage.py migrate &&
+               python PostBlog/manage.py createsuperuser --noinput --username admin --email admin@example.com &&
+               python PostBlog/manage.py runserver 0.0.0.0:8000"
+    environment:
+      DJANGO_SUPERUSER_PASSWORD: "admin"
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
